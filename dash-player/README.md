@@ -1,0 +1,1 @@
+Just point the browser at `index.html`

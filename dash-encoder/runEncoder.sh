@@ -1,0 +1,1 @@
+docker run -it -v "/mnt/hde/work/dash:/mnt/video" vace117/dash-encoder
