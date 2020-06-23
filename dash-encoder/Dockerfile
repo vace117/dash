@@ -131,8 +131,8 @@ USER ${UID}:${GID}
 ########################################
 ARG CUSTOM_SCRIPTS=${HOME}/custom_scripts
 RUN mkdir ${CUSTOM_SCRIPTS}
-# COPY scripts/* ${CUSTOM_SCRIPTS}
 
-ENV PATH=${CUSTOM_SCRIPTS}:${PATH}
+ADD scripts/stage0 ${CUSTOM_SCRIPTS}/stage0
+ENV PATH=${CUSTOM_SCRIPTS}/stage0:${PATH}
 
 CMD ["bash"]

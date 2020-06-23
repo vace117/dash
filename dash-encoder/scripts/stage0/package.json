@@ -1,0 +1,16 @@
+{
+  "name": "check_dash_readiness",
+  "version": "1.0.0",
+  "description": "",
+  "main": "checkDashReadiness.js",
+  "scripts": {
+    "start": "node checkDashReadiness.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chalk": "^4.1.0",
+    "yargs": "^15.3.1"
+  }
+}
