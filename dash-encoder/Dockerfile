@@ -9,43 +9,40 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     cmake \
     python3 \
     python3-pip \
-    git &&\
-    pip3 install invoke &&\
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 1 &&\
-    update-alternatives --set python /usr/bin/python3
+    git \
+    vim tree sudo \
+    autoconf \
+    automake \
+    libass-dev \
+    libfreetype6-dev \
+    libgnutls28-dev \
+    libsdl2-dev \
+    libtool \
+    libva-dev \
+    libvdpau-dev \
+    libvorbis-dev \
+    libxcb1-dev \
+    libxcb-shm0-dev \
+    libxcb-xfixes0-dev \
+    pkg-config \
+    texinfo \
+    wget \
+    yasm \
+    zlib1g-dev \
+    nasm \
+    libmp3lame-dev \
+    libtheora-dev \
+    libx264-dev \
+    libx265-dev libnuma-dev \
+    libvpx-dev \
+    libfdk-aac-dev \
+    libopus-dev \
+    libzvbi-dev \
+    libunistring-dev \    
+    && pip3 install invoke \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
+    && update-alternatives --set python /usr/bin/python3
 
-RUN apt-get install -y vim tree
-
-RUN apt-get install -y \
-                autoconf \
-                automake \
-                libass-dev \
-                libfreetype6-dev \
-                libgnutls28-dev \
-                libsdl2-dev \
-                libtool \
-                libva-dev \
-                libvdpau-dev \
-                libvorbis-dev \
-                libxcb1-dev \
-                libxcb-shm0-dev \
-                libxcb-xfixes0-dev \
-                pkg-config \
-                texinfo \
-                wget \
-                yasm \
-                zlib1g-dev \
-                nasm \
-                libmp3lame-dev \
-                libtheora-dev \
-                libx264-dev \
-                libx265-dev libnuma-dev \
-                libvpx-dev \
-                libfdk-aac-dev \
-                libopus-dev  
-
-RUN apt-get install -y \
-                libunistring-dev
 
 # Add a user
 ARG USER=dash
@@ -85,36 +82,57 @@ ARG FFMPEG_BUILD_DIR="$HOME/ffmpeg_build/BUILD_DIR"
 ARG FFMPEG_DIR="$HOME/ffmpeg"
 ENV PKG_CONFIG_PATH="${FFMPEG_BUILD_DIR}/lib/pkgconfig"
 
-RUN git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg_build
-
-RUN mkdir -p ${PKG_CONFIG_PATH} \
+RUN git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg_build \
+ && mkdir -p ${PKG_CONFIG_PATH} \
  && cd "${FFMPEG_BUILD_DIR}/.." \
  && ./configure \
-  --prefix=${FFMPEG_BUILD_DIR} \
-  --pkg-config-flags="--static" \
-  --extra-cflags="-I${FFMPEG_BUILD_DIR}/include" \
-  --extra-ldflags="-L$${FFMPEG_BUILD_DIR}/lib" \
-  --extra-libs="-lpthread -lm" \
-  --bindir="${FFMPEG_DIR}/bin" \
-  --enable-gpl \
-  --enable-gnutls \
-  --enable-libass \
-  --enable-libfdk-aac \
-  --enable-libfreetype \
-  --enable-libmp3lame \
-  --enable-libopus \
-  --enable-libvorbis \
-  --enable-libvpx \
-  --enable-libx264 \
-  --enable-libx265 \
-  --enable-nonfree
-
-RUN cd "${FFMPEG_BUILD_DIR}/.." \
- && make
-
-RUN cd "${FFMPEG_BUILD_DIR}/.." \
+        --prefix=${FFMPEG_BUILD_DIR} \
+        --pkg-config-flags="--static" \
+        --extra-cflags="-I${FFMPEG_BUILD_DIR}/include" \
+        --extra-ldflags="-L$${FFMPEG_BUILD_DIR}/lib" \
+        --extra-libs="-lpthread -lm" \
+        --bindir="${FFMPEG_DIR}/bin" \
+        --enable-gpl \
+        --enable-gnutls \
+        --enable-libass \
+        --enable-libfdk-aac \
+        --enable-libfreetype \
+        --enable-libmp3lame \
+        --enable-libopus \
+        --enable-libvorbis \
+        --enable-libvpx \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-nonfree \
+        --enable-libzvbi \
+ && make \
  && make install
 
 ENV PATH=${FFMPEG_DIR}/bin:${PATH}
+
+# ########################################
+# # Install Groovy
+# ########################################
+# USER root
+# RUN apt-get install -y openjdk-8-jre-headless groovy \
+#  && ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java
+# USER ${UID}:${GID}
+
+########################################
+# Install NodeJS
+########################################
+USER root
+RUN wget -q -O- https://deb.nodesource.com/setup_12.x | bash - \
+ && apt-get install -y nodejs
+USER ${UID}:${GID}
+
+########################################
+# Install Custom Helper Scripts
+########################################
+ARG CUSTOM_SCRIPTS=${HOME}/custom_scripts
+RUN mkdir ${CUSTOM_SCRIPTS}
+# COPY scripts/* ${CUSTOM_SCRIPTS}
+
+ENV PATH=${CUSTOM_SCRIPTS}:${PATH}
 
 CMD ["bash"]

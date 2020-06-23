@@ -1,6 +1,3 @@
-# Explanation of DASH
-https://www.bento4.com/developers/dash/
-
 # Build Encoder Image
 ```text
 docker build -t vace117/dash-encoder .
@@ -13,18 +10,34 @@ docker build -t vace117/dash-encoder .
 
 All of the commands below should be executed from the Docker image.
 
+# Creating a DASH Presentation
+
+## 1) Transcoding to MP4
+Our video must be packaged inside an MP4 container, that contains:
+* H264 Video
+* AAC Audio
+
+In order to check what your input has, run:
+```text
+$ checkDashReadiness.sh <input video file>
+
+Analyzing DASH Readiness...
+  Video:     OK!
+  Audio:     Needs re-encoding to AAC :(
+  Subtitles: Must be converted to WebVTT
+```
+
+### Encoding Video to h264
+If your input video is not already encoded in `h264`, you must re-encode it.
+
+
+
 # Creating fragmented MP4 files
 Fast method that does not re-encode the file:
 ```text
 mp4fragment in.mp4 out.mp4
 ```
 
- OR
-
-Full re-encode:
-```text
-ffmpeg -in.mp4 -movflags frag_keyframe+empty_moov+default_base_moof out.mp4
-```
 
 # Encoding multiple quality streams
 Source: https://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players/
@@ -46,3 +59,12 @@ Use this to test results by pointing at the Apache server (`'dash-server'` image
 
 http://reference.dashif.org/dash.js/v3.1.1/samples/dash-if-reference-player/index.html
 
+# Resources
+## Explanation of DASH
+https://www.bento4.com/developers/dash/
+
+## Subtitles + DASH
+https://www.bento4.com/developers/dash/subtitles/
+
+## Bento4 Commands Documentation
+https://www.bento4.com/documentation/
