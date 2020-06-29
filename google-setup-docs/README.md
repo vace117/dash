@@ -49,6 +49,7 @@ gcloud iam service-accounts create dash-player
 Create a custom role called `DASHPubSubClient` using the GCP Console. Include the following permissions:
   * pubsub.subscriptions.consume
   * pubsub.subscriptions.create
+  * pubsub.subscriptions.delete
   * pubsub.subscriptions.get
   * pubsub.subscriptions.list
   * pubsub.topics.attachSubscription
