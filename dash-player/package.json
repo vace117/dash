@@ -10,6 +10,7 @@
     "test:server": "node tests/server/google-pubsub.js"
   },
   "dependencies": {
+    "chalk": "^4.1.0",
     "core-js": "^3.6.5",
     "crypto": "^1.0.1",
     "log-timestamp": "^0.3.0",
