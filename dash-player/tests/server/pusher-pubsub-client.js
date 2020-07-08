@@ -59,7 +59,7 @@ function _sendTestCommand () {
 }
 
 function _createClient () {
-  return new PusherClient('db1489f973f891a9072e', {
+  return new PusherClient('e5177df52242aa7b7378', {
     cluster: 'us2',
     authEndpoint: 'http://localhost:5000/pusher/auth',
     auth: {

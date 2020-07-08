@@ -13,7 +13,7 @@ const SECRETS = JSON.parse( fs.readFileSync('secrets-1027455.json') )
 const PusherServer = new require('pusher')
 const pusher = new PusherServer({
     appId: '1027455',
-    key: 'db1489f973f891a9072e',
+    key: 'e5177df52242aa7b7378',
     secret: SECRETS['pusher-dash-secret'],
     cluster: 'us2',
     useTLS: true
