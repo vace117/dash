@@ -43,7 +43,12 @@ Please enter the URL: _______________
         })
     },
 
+    createDashPlayer(context) {
 
+        - Each of the handlers will use the STORED channel to trigger an event
+
+        - Register an event handler for each event and manipulate this.$store.dashPlayer accordingly.
+    }
   }
 
 
@@ -54,20 +59,40 @@ Please enter the URL: _______________
 
 </template>
 
+
+<script>
+export default {
+  created() {
+    this.dashPlayer = <Create the DASH Player Object>
+
+    - bind handlers to all buttons:
+        - this.play
+        - this.pause
+        - this.seek
+  },
+
+  methods: {
+    play(): {
+        this.$store.channel.trigger('client-play', { time: <time index> })
+    },
+    pause(): {
+        this.$store.channel.trigger('client-pause', { })
+    },
+    seek(): {
+        this.$store.channel.trigger('client-seek', { time: <time index> })
+    }
+
+  }
+};
+</script>
+
 <script>
 
     - onCreate(): {
+        initDashPlayer()
+    }
 
-        - Create DASH player object and bind handlers to all buttons:
-            - Play
-            - Pause
-            - Seek
-
-        - this.$store.commit('setDashPlayer', dashPlayer)
-
-        - Each of the handlers will use the STORED channel to trigger an event
-
-        - Register an event handler for each event and manipulate this.$store.dashPlayer accordingly.
+    function initDashPlayer() {
 
     }
 
