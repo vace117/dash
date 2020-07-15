@@ -6,8 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint",
-    "test:server": "node tests/server/google-pubsub.js"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "chalk": "^4.1.0",

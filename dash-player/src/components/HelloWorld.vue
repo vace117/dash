@@ -29,7 +29,7 @@ export default {
   methods: {
     runStuff: async function (event) {
       // const { PubSub } =
-      require('@google-cloud/pubsub')
+      // require('@google-cloud/pubsub')
 
       // this.pubSubClient = new PubSub({
       //   projectId: 'dash-281402',
