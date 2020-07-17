@@ -1,15 +1,13 @@
 <template>
   <div id="videoUrlSelectionPanel">
-    <div class="centeredContent">
       Enter URL of your MPD file
       <br/>
       <!-- <input v-model.lazy="selectedVideoUrl" size="70" class="bigInputText" /> -->
-      <b-form-input v-model="selectedVideoUrl" lazy type="url" class="bigInputText"
-        placeholder="https://storage.googleapis.com/dash-video-storage/dylan/stream.mpd" />
+      <b-form-input v-model="selectedVideoUrl" lazy type="url" class="bigInputText" />
       <p/>
-      <b-button size="lg" variant="success">WATCH</b-button>
+      <b-button  v-if="readyToWatchInd" @click.prevent="watchVideo" size="lg" variant="success">WATCH</b-button>
+      <b-spinner v-else                 type="grow" variant="success" style="width: 0.8em; height: 0.8em;" />
     </div>
-  </div>
 </template>
 
 <script>
@@ -18,7 +16,29 @@ import { mapFields } from 'vuex-map-fields'
 export default {
   data () {
     return {
+      readyToWatchInd: true
+    }
+  },
 
+  methods: {
+    watchVideo () {
+      this.readyToWatchInd = false
+      if (this._checkVideoUrl()) {
+        this.$router.push({ path: '/videoPlayer' })
+      } else {
+        this.readyToWatchInd = true
+      }
+    },
+
+    _checkVideoUrl () {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(this.selectedVideoUrl)
+        return true
+      } catch (error) {
+        this.$store.commit('updateErrors', 'The URL you specified is invalid!')
+        return false
+      }
     }
   },
 
@@ -31,15 +51,6 @@ export default {
 
 <style scoped>
   #videoUrlSelectionPanel {
-    width: 100%;
-    height: 90%;
-    display: table;
-    text-align: center;
-  }
-
-  .centeredContent {
-    display: table-cell;
-    vertical-align: middle;
     font-size: 4em;
     font-weight: bold;
   }

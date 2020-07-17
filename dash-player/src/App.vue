@@ -1,11 +1,20 @@
 <template>
-  <div id="rootContainer">
+  <b-container fluid style="height: 100%">
     <!-- Global Messages -->
-    <GlobalMessages />
+    <b-row>
+      <b-col>
+        <GlobalMessages />
+      </b-col>
+    </b-row>
 
     <!-- Page Content -->
-    <router-view/>
-  </div>
+    <b-row align-v="center" class="text-center" style="height: 90%">
+      <b-col>
+        <p/>
+        <router-view/>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>

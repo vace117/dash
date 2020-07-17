@@ -1,13 +1,9 @@
-html, body {
-  height: 90%;
-  color: rgb(255, 174, 0);
-  background-color: black;
-}
+$body-bg: #000;
+$body-color: rgb(255, 174, 0);
 
-#rootContainer {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+html,
+body {
+  color: $body-color;
+  background-color: $body-bg;
   height: 100%;
 }

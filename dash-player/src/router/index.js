@@ -8,6 +8,10 @@ export default new VueRouter({
     {
       path: '/',
       component: () => import('@/views/SelectVideo.vue')
+    },
+    {
+      path: '/videoPlayer',
+      component: () => import('@/views/VideoPlayer.vue')
     }
   ]
 })
