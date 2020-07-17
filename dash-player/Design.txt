@@ -1,17 +1,17 @@
 # Home Page
 
-## Template
+    ## Template
 
- - <<ERROR Text>>
+    - <<ERROR Text>>
 
-Please enter the URL: _______________
+    Please enter the URL: _______________
 
- <<WATCH Button / Busy Spinner>>
+    <<WATCH Button / Busy Spinner>>
 
 ## Script
 ### Methods
 
-    watchVideoURL(selectedURL): {
+    watchVideo(selectedURL): {
         - Hide button, activate spinner
 
         - this.$store.dispatch('loadVideo', selectedURL).then( () => {
