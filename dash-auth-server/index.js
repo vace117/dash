@@ -26,7 +26,7 @@ server.use(cors())
 
 
 server.post('/pusher/auth', function(req, res) {
-    console.log(req.body)
+    console.log(`Received authentication request from '${req.headers['origin']}' using '${req.headers['user-agent']}'`)
 
     const socketId = req.body.socket_id
     const channel = req.body.channel_name
@@ -34,9 +34,11 @@ server.post('/pusher/auth', function(req, res) {
 
     if ( password === SECRETS['dash-auth-server-password'] ) {
         const auth = pusher.authenticate(socketId, channel)
+        console.log(`Successfully authenticated socket '${socketId}' for channel '${channel}'`)
         res.send(auth)
     }
     else {
+        console.error(`Incorrect password provided: '${password}'!`)
         res.sendStatus(403)
     }
 
