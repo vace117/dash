@@ -7,3 +7,22 @@ body {
   background-color: $body-bg;
   height: 100%;
 }
+
+.bigScreenText {
+  font-size: 4em;
+  font-weight: bold;
+}
+
+.bigInputText {
+  background-color: #333333;
+  color: yellowgreen;
+  border: 3px solid rgb(255, 174, 0);
+  padding: 10px;
+  font-size: 0.3em;
+  font-weight: bold;
+}
+
+.bigButton {
+  font-size: 0.7em;
+  border: 3px solid rgb(255, 174, 0);
+}

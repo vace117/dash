@@ -7,6 +7,10 @@ export default new VueRouter({
   routes: [
     {
       path: '/',
+      component: () => import('@/views/Login.vue')
+    },
+    {
+      path: '/selectVideo',
       component: () => import('@/views/SelectVideo.vue')
     },
     {
