@@ -23,12 +23,31 @@ export default new Vuex.Store({
       } else {
         state.globalMessages.push(errorTexts)
       }
+
+    updatePubSubChannel (state, newChannel) {
+      state.pubSubChannel = newChannel
     }
 
   },
+
   getters: {
     getField // Allows auto-generated two-way bindings from components using 'mapFields' helper
   },
+
   actions: {
+    subscribeToPubSubChannel ({ state, commit }) {
+      return new Promise((resolve, reject) => {
+        createOrSubscribeToChannelForVideo({
+          selectedVideoURL: state.selectedVideoUrl,
+          password:         state.password
+        })
+          .then(channel => {
+            commit('updatePubSubChannel', channel)
+            resolve(channel)
+          })
+          .catch(error => reject(error))
+      })
+    }
+
   }
 })
