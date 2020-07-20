@@ -54,6 +54,19 @@ ffmpeg -y -i 720p.mp4 -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts 'key
 ffmpeg -y -i 720p.mp4 -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 400k -maxrate 400k -bufsize 400k -vf "scale=-1:360" outputfile360.mp4
 ```
 
+
+# Extract Subtitles to SRT
+ffmpeg -txt_format text -i in.mkv subs.vtt
+
+# Lossless Repackage to MP4
+ffmpeg -i in.mkv -codec copy out.mp4
+
+# Lossless Video, encode audio to AAC
+ffmpeg -i in.mkv -c:a libfdk_aac -b:a 128k -c:v copy out.mp4
+
+# Create DASH presentation
+mp4dash fragmented_in.mp4 [+format=webvtt,+language=eng]subs.vtt -o out_dir
+
 # Reference player
 Use this to test results by pointing at the Apache server (`'dash-server'` image):
 

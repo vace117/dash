@@ -14,6 +14,8 @@ const chalk = require('chalk');
 
 function processContainer(videoData) {
     console.log(`Container: '${videoData.format.format_long_name}'..... ${analyzeContainerFormat(videoData)}\n`)
+    // TODO: If container was OK, check if the MP4 is fragmented using 'mp4fragment' utility
+
 }
 
 function processStream(stream) {
