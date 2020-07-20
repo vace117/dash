@@ -3,17 +3,13 @@ import Vuex from 'vuex'
 
 import { getField, updateField } from 'vuex-map-fields'
 
-import createOrSubscribeToChannelForVideo from './pusher.js'
-
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    //    globalMessages: ['Something went very wrong! I dont know what to do. Please help me!', 'What do we do now?'],
     globalMessages: [],
     selectedVideoUrl: 'https://storage.googleapis.com/dash-video-storage/dylan/stream.mpd',
-    password: null,
-    pubSubChannel: null
+    password: null
   },
   mutations: {
     updateField, // Allows auto-generated two-way bindings from components using 'mapFields' helper
@@ -34,10 +30,6 @@ export default new Vuex.Store({
 
     clearPassword (state) {
       state.password = null
-    },
-
-    updatePubSubChannel (state, newChannel) {
-      state.pubSubChannel = newChannel
     }
 
   },
@@ -47,19 +39,6 @@ export default new Vuex.Store({
   },
 
   actions: {
-    subscribeToPubSubChannel ({ state, commit }) {
-      return new Promise((resolve, reject) => {
-        createOrSubscribeToChannelForVideo({
-          selectedVideoURL: state.selectedVideoUrl,
-          password:         state.password
-        })
-          .then(channel => {
-            commit('updatePubSubChannel', channel)
-            resolve(channel)
-          })
-          .catch(error => reject(error))
-      })
-    }
 
   }
 })

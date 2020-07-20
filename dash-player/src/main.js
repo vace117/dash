@@ -9,6 +9,11 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '@/assets/styles/global-styles.scss'
 
+require('log-timestamp')(() => {
+  const messageTime = new Date()
+  return `[${messageTime.toLocaleString('en-CA')} <${messageTime.getMilliseconds()}ms>]`
+})
+
 Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false

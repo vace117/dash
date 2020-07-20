@@ -29,7 +29,7 @@ export default function createOrSubscribeToChannelForVideo ({ selectedVideoURL, 
 function _createClient (clientPassword) {
   return new Pusher('e5177df52242aa7b7378', {
     cluster: 'us2',
-    authEndpoint: 'http://localhost:5000/pusher/auth',
+    authEndpoint: 'http://192.168.0.195:5000/pusher/auth',
     auth: {
       params: { password: clientPassword }
     }

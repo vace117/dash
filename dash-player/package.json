@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "crypto": "^1.0.1",
     "dashjs": "^3.1.1",
+    "lodash": "^4.17.19",
     "log-timestamp": "^0.3.0",
     "pusher": "^3.0.1",
     "pusher-js": "^6.0.3",
@@ -60,8 +61,9 @@
       "no-multi-spaces": "off",
       "no-debugger": "warn",
       "key-spacing": "off",
+      "brace-style": "off",
       "no-unused-vars": "warn"
-  },
+    },
     "overrides": [
       {
         "files": [
