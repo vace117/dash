@@ -82,7 +82,7 @@ function readInputFile() {
 async function parseVideoDescription(VIDEO_FILE) {
     return JSON.parse( 
         (await exec(
-            `ffprobe -v quiet -print_format json -show_format -show_streams ${VIDEO_FILE}`,
+            `ffprobe -v quiet -print_format json -show_format -show_streams '${VIDEO_FILE}'`,
         )).stdout
     )
 }
