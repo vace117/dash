@@ -129,10 +129,15 @@ USER ${UID}:${GID}
 ########################################
 # Install Custom Helper Scripts
 ########################################
+USER root
 ARG CUSTOM_SCRIPTS=${HOME}/custom_scripts
 RUN mkdir ${CUSTOM_SCRIPTS}
 
 ADD scripts/stage0 ${CUSTOM_SCRIPTS}/stage0
+WORKDIR ${CUSTOM_SCRIPTS}/stage0
+RUN npm install
 ENV PATH=${CUSTOM_SCRIPTS}/stage0:${PATH}
 
+USER ${UID}:${GID}
+WORKDIR /home/${USER}
 CMD ["bash"]

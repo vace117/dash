@@ -1,6 +1,5 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname "$0")
-echo $SCRIPT_DIR
-
-npm --prefix $SCRIPT_DIR start $@
+CURRENT_DIR=`pwd`
+cd "$(dirname "$0")"
+node checkDashReadiness.js "$CURRENT_DIR/$1"
