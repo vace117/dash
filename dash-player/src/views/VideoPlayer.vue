@@ -4,12 +4,15 @@
       <b-spinner type="grow" variant="warning" style="width: 10em; height: 10em;" />
       <p/>
       <span style="font-size: large">Please wait...</span>
+      <p/>
+      <b-button v-if="errorsPresent" @click="goBackToLogin" size="lg" variant="warning" style="margin-left: 20px">LOGIN AGAIN</b-button>
     </div>
     <div v-show="pubSubInitCompletedInd">
       <video id="videoPlayer" controls></video>
       <p/>
       <b-button @click="goBack" size="lg" variant="warning">GO BACK</b-button>
     </div>
+
   </div>
 </template>
 
@@ -49,7 +52,11 @@ export default {
   methods: {
     goBack () {
       this._tearDown()
-      this.$router.go(-1)
+      this.$router.push({ path: '/selectVideo' })
+    },
+
+    goBackToLogin () {
+      this.$router.push({ path: '/' })
     },
 
     _tearDown () {
@@ -126,7 +133,11 @@ export default {
   },
 
   computed: {
-    ...mapFields(['selectedVideoUrl'])
+    ...mapFields(['selectedVideoUrl']),
+
+    errorsPresent () {
+      return this.$store.getters.errorsPresent
+    }
   }
 
 }

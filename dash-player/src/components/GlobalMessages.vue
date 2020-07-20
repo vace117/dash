@@ -15,7 +15,7 @@ export default {
     globalMessages () { return this.$store.state.globalMessages },
 
     isGlobalMessagesPresent () {
-      return Array.isArray(this.globalMessages) && this.globalMessages.length > 0
+      return this.$store.getters.errorsPresent
     }
   }
 

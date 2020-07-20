@@ -14,7 +14,7 @@ import { mapFields } from 'vuex-map-fields'
 export default {
   methods: {
     login () {
-      this.$router.push({ path: '/selectVideo' })
+      this.$store.dispatch('login')
     }
   },
 

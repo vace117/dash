@@ -24,6 +24,19 @@ server.use(bodyParser.json())
 server.use(bodyParser.urlencoded({ extended: false }))
 server.use(cors())
 
+server.post('/dash-app/auth', function(req, res) {
+    console.log(`Received authentication request from '${req.headers['origin']}' using '${req.headers['user-agent']}'`)
+
+    if ( _checkPassword (req.body.password) ) {
+        console.log('Successfully authenticated application client.')
+        res.send({status: 'ok'})
+    }
+    else {
+        console.error(`Incorrect password provided: '${req.body.password}'!`)
+        res.sendStatus(403)
+    }
+
+})
 
 server.post('/pusher/auth', function(req, res) {
     console.log(`Received authentication request from '${req.headers['origin']}' using '${req.headers['user-agent']}'`)
@@ -32,7 +45,7 @@ server.post('/pusher/auth', function(req, res) {
     const channel = req.body.channel_name
     const password = req.body.password
 
-    if ( password === SECRETS['dash-auth-server-password'] ) {
+    if ( _checkPassword (password) ) {
         const auth = pusher.authenticate(socketId, channel)
         console.log(`Successfully authenticated socket '${socketId}' for channel '${channel}'`)
         res.send(auth)
@@ -44,7 +57,11 @@ server.post('/pusher/auth', function(req, res) {
 
 })
 
-// eslint-disable-next-line no-undef
+function _checkPassword (password) {
+    return password === SECRETS['dash-auth-server-password']
+}
+
+
 var port = process.env.PORT || 5000
 server.listen(port)
 

@@ -1,3 +1,5 @@
+import auth from '@/pubsub/authentication'
+
 const Pusher = require('pusher-js')
 const crypto = require('crypto')
 
@@ -29,7 +31,7 @@ export default function createOrSubscribeToChannelForVideo ({ selectedVideoURL, 
 function _createClient (clientPassword) {
   return new Pusher('e5177df52242aa7b7378', {
     cluster: 'us2',
-    authEndpoint: 'http://192.168.0.195:5000/pusher/auth',
+    authEndpoint: auth.pusher_endpoint,
     auth: {
       params: { password: clientPassword }
     }
