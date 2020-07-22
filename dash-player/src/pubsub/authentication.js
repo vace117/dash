@@ -1,4 +1,4 @@
-const AUTH_HOST = 'http://192.168.0.195:5000'
+const AUTH_HOST = 'http://vace.homelinux.com:7778'
 
 export default {
   application_endpoint: `${AUTH_HOST}/dash-app/auth`,

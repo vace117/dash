@@ -3,7 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import { BootstrapVue } from 'bootstrap-vue'
+// import { BootstrapVue } from 'bootstrap-vue'
+import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin } from 'bootstrap-vue'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -14,7 +15,10 @@ require('log-timestamp')(() => {
   return `[${messageTime.toLocaleString('en-CA')} <${messageTime.getMilliseconds()}ms>]`
 })
 
-Vue.use(BootstrapVue)
+Vue.use(LayoutPlugin)
+Vue.use(FormInputPlugin)
+Vue.use(ButtonPlugin)
+Vue.use(SpinnerPlugin)
 
 Vue.config.productionTip = false
 
