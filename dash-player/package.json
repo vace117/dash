@@ -23,6 +23,7 @@
     "pusher-js": "^6.0.3",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
+    "vuejs-tree": "^2.0.0-5",
     "vuex": "^3.4.0",
     "vuex-map-fields": "^1.4.0"
   },

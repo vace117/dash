@@ -124,6 +124,7 @@ export default {
         console.log('Broadcasting Video Event: ' + JSON.stringify(payload))
         this.lastBroadcast = payload
         this.pubSubChannel.trigger('client-video-command', payload)
+        // Generate unique token and include in message for de-duplication
       }
       else {
         // console.log(`Broadcast of ${JSON.stringify(payload)} was blocked.`)

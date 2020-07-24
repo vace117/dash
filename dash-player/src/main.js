@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 
 // import { BootstrapVue } from 'bootstrap-vue'
-import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin } from 'bootstrap-vue'
+import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin, ModalPlugin } from 'bootstrap-vue'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -19,6 +19,7 @@ Vue.use(LayoutPlugin)
 Vue.use(FormInputPlugin)
 Vue.use(ButtonPlugin)
 Vue.use(SpinnerPlugin)
+Vue.use(ModalPlugin)
 
 Vue.config.productionTip = false
 

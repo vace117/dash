@@ -18,3 +18,21 @@ export function postServerQuery ({
       })
   })
 }
+
+export function getServerQuery ({
+  endpoint,
+  parameters = {}
+}) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(endpoint, {
+        params: parameters
+      })
+      .then(response => {
+        resolve(response)
+      })
+      .catch(error => {
+        reject(error)
+      })
+  })
+}

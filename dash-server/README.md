@@ -44,6 +44,15 @@ gsutil -m setmeta -h "Content-Type:application/dash+xml" 'gs://dash-video-storag
 gsutil -m cp -r dylan/ gs://dash-video-storage/
 ```
 
+## Data List Example
+```text
+$ gsutil ls 'gs://dash-video-storage/**.mpd'
+gs://dash-video-storage/Dylan Werner/02 True Strength Fundamentals/Day 01 - Strength Practice 1/stream.mpd
+gs://dash-video-storage/Dylan Werner/02 True Strength Fundamentals/Day 02 - Strength Practice 2/stream.mpd
+gs://dash-video-storage/Dylan Werner/02 True Strength Fundamentals/Day 03 - Strength Practice 3/stream.mpd
+gs://dash-video-storage/dylan/stream.mpd
+```
+
 ## Data Access Example
 * Example of external URL used to access a bucket resource:
 https://storage.googleapis.com/dash-video-storage/dylan/stream.mpd

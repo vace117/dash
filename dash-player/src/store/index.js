@@ -17,6 +17,10 @@ export default new Vuex.Store({
   mutations: {
     updateField, // Allows auto-generated two-way bindings from components using 'mapFields' helper
 
+    updateSelectedVideoUrl (state, url) {
+      state.selectedVideoUrl = url
+    },
+
     updateErrors (state, errorTexts) {
       state.globalMessages = []
 

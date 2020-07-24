@@ -8,7 +8,7 @@
     </b-row>
 
     <!-- Page Content -->
-    <b-row align-v="center" class="text-center" style="height: 90%">
+    <b-row>
       <b-col>
         <p/>
         <router-view/>
