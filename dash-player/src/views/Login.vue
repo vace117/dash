@@ -1,11 +1,13 @@
 <template>
-  <div id="loginPanel" class="bigScreenText">
+  <b-row align-h="center" class="text-center">
+    <b-col id="loginPanel" class="bigScreenText">
       >>> SPEAK FRIEND AND ENTER &lt;&lt;&lt;
       <br/>
-      <b-form-input v-model="password" lazy type="password" class="bigInputText" />
+      <b-form-input v-model="password" @keyup.enter="login" lazy type="password" class="bigInputText" />
       <p/>
-      <b-button @click.prevent="login" size="lg" variant="success">LOGIN</b-button>
-    </div>
+      <b-button @click.prevent="login" type="submit" size="funsize" variant="primary">LOGIN</b-button>
+    </b-col>
+  </b-row>
 </template>
 
 <script>

@@ -11,7 +11,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     globalMessages: [],
-    selectedVideoUrl: 'https://storage.googleapis.com/dash-video-storage/dylan/stream.mpd',
+    selectedVideoUrl: null,
     password: null
   },
   mutations: {

@@ -1,28 +1,73 @@
 <template>
   <div id="videoUrlSelectionPanel">
 
+    <!-- Header Text -->
+    <div class="bigScreenText text-center">Select what you want to watch</div>
+    <div class="smallerScreenText text-center otherColor">
+      (Or <span class="btn-link" style="cursor: pointer" @click="openUrlInputDialog">copy-and-paste</span> a link)
+    </div>
+    <hr class="fatOne"/>
+
+    <!-- Video browser tree -->
     <Tree id="fileTree" ref="fileTree" :nodes="fileTreeData" :custom-options="fileTreeOptions" :custom-styles="fileTreeStyles"></Tree>
 
-      <!-- Enter URL of your MPD file
-      <br/>
-      <b-form-input v-model="selectedVideoUrl" lazy type="url" class="bigInputText" />
-      <p/> -->
+    <!-- Video selected confirmation dialog -->
+    <b-modal ref="readyToWatchModal" title="Ready to watch?"
+        size="xl"
+        title-class="mediumScreenText"
+        header-bg-variant="warning"
+        header-text-variant="dark"
+        header-class="darkBottomBorder"
+        footer-class="darkTopBorder"
+        bodyBgVariant="dark"
+        footer-bg-variant="dark">
+      <b-container fluid>
+        <b-row>
+          <b-col class="smallerScreenText">
+            {{selectedVideoUrl}}
+          </b-col>
+        </b-row>
+      </b-container>
+      <template v-slot:modal-footer>
+        <b-container fluid>
+        <b-row align-v="center" class="text-center" style="height: 90%">
+          <b-col>
+            <b-button @click.prevent="watchVideo" size="funsize" variant="primary">WATCH</b-button>
+          </b-col>
+        </b-row>
+        </b-container>
+      </template>
+    </b-modal>
 
-      <div v-if="readyToWatchInd" >
-        <b-button @click.prevent="watchVideo" size="lg" variant="success">WATCH</b-button>
-        <b-button @click="goBackToLogin" size="lg" variant="warning" style="margin-left: 20px">LOGIN AGAIN</b-button>
-      </div>
+    <!-- Manuall URL entry dialog -->
+    <b-modal ref="urlInputModal" title="Enter URL of your MPD file..."
+        size="xl"
+        title-class="mediumScreenText"
+        header-bg-variant="warning"
+        header-text-variant="dark"
+        header-class="darkBottomBorder"
+        footer-class="darkTopBorder"
+        bodyBgVariant="dark"
+        footer-bg-variant="dark">
+      <b-container fluid>
+        <b-row>
+          <b-col class="smallerScreenText">
+            <b-form-input v-model="selectedVideoUrl" lazy type="url" class="bigInputText" />
+          </b-col>
+        </b-row>
+      </b-container>
+      <template v-slot:modal-footer>
+        <b-container fluid>
+        <b-row align-v="center" class="text-center" style="height: 90%">
+          <b-col>
+            <b-button @click.prevent="watchVideo" size="funsize" variant="primary">WATCH</b-button>
+          </b-col>
+        </b-row>
+        </b-container>
+      </template>
+    </b-modal>
 
-      <b-spinner v-else type="grow" variant="success" style="width: 0.8em; height: 0.8em;" />
-
-      <b-modal ref="readyToWatchModal" hide-footer title="Ready to watch?">
-        <div class="d-block text-center">
-          <h3> {{selectedVideoUrl}} </h3>
-        </div>
-
-        <b-button @click.prevent="watchVideo" size="lg" variant="success">WATCH</b-button>
-      </b-modal>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -159,13 +204,16 @@ export default {
               'updateSelectedVideoUrl',
               'https://storage.googleapis.com/dash-video-storage/' + dirListingOrVideoUrl
             )
-            // alert(`PLAYING ${dirListingOrVideoUrl}`)
 
             this.$refs.readyToWatchModal.show()
           }
           node.text = this.fileDisplayName(node.id)
         })
       }
+    },
+
+    openUrlInputDialog () {
+      this.$refs.urlInputModal.show()
     }
   },
 
@@ -176,7 +224,6 @@ export default {
       return {
         tree: {
           height: 'auto',
-          // maxHeight: '300px',
           overflowY: 'auto',
           display: 'inline-block'
         },
@@ -189,7 +236,15 @@ export default {
         },
         row: {
           width: '100%',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          child: {
+            height: '55px'
+          }
+        },
+        text: {
+          style: {
+            'font-size': '2em'
+          }
         }
 
         // row: {
@@ -303,5 +358,14 @@ export default {
 
   .hide_folder_icon {
     display: none;
+  }
+
+  .fatOne {
+    margin-top: 0px;
+    border: 5px solid;
+  }
+
+  .otherColor {
+    color: #3CAEA3;
   }
 </style>
