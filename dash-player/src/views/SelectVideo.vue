@@ -52,7 +52,7 @@
       <b-container fluid>
         <b-row>
           <b-col class="smallerScreenText">
-            <b-form-input v-model="selectedVideoUrl" lazy type="url" class="bigInputText" />
+            <b-form-input v-model="selectedVideoUrl" autofocus lazy type="url" class="bigInputText" />
           </b-col>
         </b-row>
       </b-container>
@@ -163,6 +163,8 @@ export default {
     },
 
     watchVideo () {
+      this.$refs.urlInputModal.hide()
+
       this.readyToWatchInd = false
       if (this._checkVideoUrl()) {
         this.$router.push({ path: '/videoPlayer' })
@@ -365,7 +367,4 @@ export default {
     border: 5px solid;
   }
 
-  .otherColor {
-    color: #3CAEA3;
-  }
 </style>

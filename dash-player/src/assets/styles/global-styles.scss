@@ -32,13 +32,19 @@ body {
   font-weight: bold;
 }
 
+$bigInputBg: #333333;
+$bigInputFg: yellowgreen;
 .bigInputText {
-  background-color: #333333;
-  color: yellowgreen;
+  background-color:$bigInputBg;
+  color: $bigInputFg;
   border: 3px solid $body-color;
   padding: 10px;
-  font-size: 0.3em;
+  font-size: 1em;
   font-weight: bold;
+}
+.bigInputText:focus {
+  background-color:$bigInputBg;
+  color: $bigInputFg;
 }
 
 .bigButton {
@@ -64,4 +70,8 @@ body {
     $btn-line-height-lg, 
     0.7rem
   );
+}
+
+.otherColor {
+  color: #3CAEA3;
 }
