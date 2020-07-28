@@ -6,8 +6,6 @@ import store from './store'
 // import { BootstrapVue } from 'bootstrap-vue'
 import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin, ModalPlugin } from 'bootstrap-vue'
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '@/assets/styles/global-styles.scss'
 
 require('log-timestamp')(() => {

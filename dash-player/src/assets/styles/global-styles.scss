@@ -1,10 +1,19 @@
+// Bootstrap overrides
+//
 $body-bg: #000;
-$body-color: rgb(255, 174, 0);
+$body-color: #ffae00;
+$enable-shadows: true;
+$primary: #28a745;
+$secondary: #ffc107;
+
+// Bootstrap and its default variables
+@import '@/../node_modules/bootstrap/scss/bootstrap';
+
+// BootstrapVue and its default variables
+@import '@/../node_modules/bootstrap-vue/src/index.scss';
 
 html,
 body {
-  color: $body-color;
-  background-color: $body-bg;
   height: 100%;
 }
 
@@ -13,10 +22,20 @@ body {
   font-weight: bold;
 }
 
+.mediumScreenText {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.smallerScreenText {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
 .bigInputText {
   background-color: #333333;
   color: yellowgreen;
-  border: 3px solid rgb(255, 174, 0);
+  border: 3px solid $body-color;
   padding: 10px;
   font-size: 0.3em;
   font-weight: bold;
@@ -24,5 +43,25 @@ body {
 
 .bigButton {
   font-size: 0.7em;
-  border: 3px solid rgb(255, 174, 0);
+  border: 3px solid $body-color;
+}
+
+.darkBottomBorder {
+  border-bottom: none !important
+}
+.darkTopBorder {
+  border-top: none !important
+}
+.boldText {
+  font-weight: bold;
+}
+
+.btn-funsize {
+  @include button-size(
+    $btn-padding-y-lg, 
+    $btn-padding-x-lg, 
+    2rem, 
+    $btn-line-height-lg, 
+    0.7rem
+  );
 }
