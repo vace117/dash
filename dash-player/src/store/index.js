@@ -12,7 +12,8 @@ export default new Vuex.Store({
   state: {
     globalMessages: [],
     selectedVideoUrl: null,
-    password: null
+    password: null,
+    fileTreeData: []
   },
   mutations: {
     updateField, // Allows auto-generated two-way bindings from components using 'mapFields' helper
@@ -37,6 +38,10 @@ export default new Vuex.Store({
 
     clearPassword (state) {
       state.password = null
+    },
+
+    updateFileTreeData (state, data) {
+      state.fileTreeData = data
     }
 
   },

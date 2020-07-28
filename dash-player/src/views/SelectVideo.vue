@@ -81,20 +81,21 @@ export default {
 
   data () {
     return {
-      readyToWatchInd: true,
-      fileTreeData: []
+      readyToWatchInd: true
     }
   },
 
   mounted () {
-    this.fetchDirectoryListing(null, dirListingOrVideoUrl => {
-      if (Array.isArray(dirListingOrVideoUrl)) {
-        this.fileTreeData = this.convertToTreeNodes(dirListingOrVideoUrl)
-      }
-      else {
-        this.$store.commit('updateErrors', 'There should be no videos in the root folder!')
-      }
-    })
+    if (this.fileTreeData.length === 0) {
+      this.fetchDirectoryListing(null, dirListingOrVideoUrl => {
+        if (Array.isArray(dirListingOrVideoUrl)) {
+          this.$store.commit('updateFileTreeData', this.convertToTreeNodes(dirListingOrVideoUrl))
+        }
+        else {
+          this.$store.commit('updateErrors', 'There should be no videos in the root folder!')
+        }
+      })
+    }
   },
 
   methods: {
@@ -189,7 +190,7 @@ export default {
     },
 
     fileSelected (node) {
-      if (node.state.expanded) {
+      if (node.state && node.state.expanded) {
         this.$refs.fileTree.collapseNode(node.id)
       }
       else {
@@ -220,7 +221,7 @@ export default {
   },
 
   computed: {
-    ...mapFields(['selectedVideoUrl']),
+    ...mapFields(['selectedVideoUrl', 'fileTreeData']),
 
     fileTreeStyles () {
       return {
@@ -248,104 +249,29 @@ export default {
             'font-size': '2em'
           }
         }
-
-        // row: {
-        //   width: '500px',
-        //   cursor: 'pointer',
-        //   child: {
-        //     height: '35px'
-        //   }
-        // },
-        // addNode: {
-        //   class: 'custom_class',
-        //   style: {
-        //     color: '#007AD5'
-        //   }
-        // },
-        // editNode: {
-        //   class: 'custom_class',
-        //   style: {
-        //     color: '#007AD5'
-        //   }
-        // },
-        // deleteNode: {
-        //   class: 'custom_class',
-        //   style: {
-        //     color: '#EE5F5B'
-        //   }
-        // },
-        // selectIcon: {
-        //   class: 'custom_class',
-        //   style: {
-        //     color: '#007AD5'
-        //   },
-        //   active: {
-        //     class: 'custom_class',
-        //     style: {
-        //       color: '#2ECC71'
-        //     }
-        //   }
-        // },
-        // text: {
-        //   style: {},
-        //   active: {
-        //     style: {
-        //       'font-weight': 'bold',folder
-        //       color: '#2ECC71'
-        //     }
-        //   }
-        // }
       }
     },
 
     fileTreeOptions () {
       return {
         treeEvents: {
-          // expanded: {
-          //   state: true,
-          //   fn: this.fileSelected
-          // },
-          // collapsed: {
-          //   state: false,
-          //   fn: null
-          // },
           selected: {
             state: true,
             fn: this.fileSelected
           }
-          // checked: {
-          //   state: true,
-          //   fn: this.fileSelected
-          // }
         },
 
         events: {
-          // expanded: {
-          //   state: true,
-          //   fn: this.fileSelected
-          // },
           selected: {
             state: true,
             fn: this.fileSelected
           },
-          //   checked: {
-          //     state: false,
-          //     fn: null
-          //   },
           editableName: {
             state: true,
             fn: this.fileSelected,
             calledEvent: 'selected'
           }
         }
-
-        // addNode: { state: false, fn: null, appearOnHover: false },
-
-        // editNode: { state: true, fn: null, appearOnHover: true },
-
-        // deleteNode: { state: true, fn: null, appearOnHover: true },
-
-        // showTags: true
       }
     }
   }
