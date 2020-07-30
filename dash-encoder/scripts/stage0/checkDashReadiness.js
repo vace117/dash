@@ -1,7 +1,21 @@
 const exec = require('./util/exec').exec;
 const chalk = require('chalk');
+const path = require('path');
+const fs = require('fs');
 
 const VIDEO_FILE = readInputFile();
+const VIDEO_FILE_BASE = path.parse(VIDEO_FILE).name
+
+// These are selected using data from here: 
+// http://www.lighterra.com/papers/videoencodingh264/
+//
+const BIT_RATE_SETTINGS_PER_RESOLUTION = {
+  '1080': {bitrate: '3500k', bufsize: '6000k'},
+  '720' : {bitrate: '2200k', bufsize: '4000k'},
+  '480' : {bitrate: '1000k', bufsize: '2000k'},
+  '360' : {bitrate: '500k',  bufsize: '1000k'},
+  '240' : {bitrate: '500k',  bufsize: '1000k'}
+}
 
 const ACTION_PLAN = {
   container: {
@@ -11,7 +25,8 @@ const ACTION_PLAN = {
 
   video: {
     reencode: null,
-    resolution_height: null
+    resolution_height: null,
+    frame_rate: null
   },
 
   audio: {
@@ -33,7 +48,69 @@ const ACTION_PLAN = {
   console.log("== Action Plan ==")
   console.log(ACTION_PLAN)
 
+  console.log("== Script ==")
+  let command = '#!/bin/bash\n\n'
+
+  if ( ACTION_PLAN.container.repackage || ACTION_PLAN.video.reencode || ACTION_PLAN.audio.reencode ) {
+    command += `ffmpeg -y -i '${VIDEO_FILE}' \\
+   ${generateEncodeParameters()} \\
+   '${VIDEO_FILE_BASE}_out.mp4'`
+  }
+
+  if ( ACTION_PLAN.container.fragment ) {
+    // TODO: Fragment
+  }
+
+  console.log(command)
+  fs.writeFileSync(`${VIDEO_FILE_BASE}.sh`, command)
+  fs.chmodSync(`${VIDEO_FILE_BASE}.sh`, '755')
 })();
+
+function generateEncodeParameters() {
+  if ( ACTION_PLAN.container.repackage && !ACTION_PLAN.video.reencode && !ACTION_PLAN.audio.reencode ) {
+    return '-codec copy '
+  }
+  else {
+    return `${generateVideoParameters()} \\\n   ${generateAudioParameters()}`
+  }
+}
+
+function generateVideoParameters() {
+  let encodeParameters = ''
+
+  if ( ACTION_PLAN.video.reencode ) {
+    const frameRate = Math.ceil(eval(ACTION_PLAN.video.frame_rate))
+    const gop = frameRate * 5 // I-frame every 5 seconds
+    const bitRateSetting = BIT_RATE_SETTINGS_PER_RESOLUTION[ACTION_PLAN.video.resolution_height]
+
+    encodeParameters += '-c:v libx264 -preset ultrafast '
+    encodeParameters += '-movflags faststart '
+    encodeParameters += `-flags +cgop -g ${gop} -sc_threshold 0 `
+    encodeParameters += `-x264opts 'keyint=${gop}:min-keyint=${gop}:no-scenecut' `
+    encodeParameters += `-b:v ${bitRateSetting.bitrate} `
+    encodeParameters += `-maxrate ${bitRateSetting.bitrate} `
+    encodeParameters += `-bufsize ${bitRateSetting.bufsize} `
+    //encodeParameters += `-vstats_file '${VIDEO_FILE_BASE}_vstats.txt' `
+  }
+  else {
+    encodeParameters += '-c:v copy '
+  }
+
+  return encodeParameters
+}
+
+function generateAudioParameters() {
+  let encodeParameters = ''
+
+  if ( ACTION_PLAN.audio.reencode ) {
+    encodeParameters += `-c:a libfdk_aac -b:a 128k `
+  }
+  else {
+    encodeParameters += '-c:a copy '
+  }
+
+  return encodeParameters
+}
 
 async function processContainer (videoData) {
   const result = analyzeContainerFormat(videoData)
@@ -114,6 +191,7 @@ function analyzeVideoStream (videoStream) {
     ACTION_PLAN.container.repackage = true
     ACTION_PLAN.container.fragment = true
     ACTION_PLAN.video.resolution_height = videoStream.height
+    ACTION_PLAN.video.frame_rate = videoStream.avg_frame_rate
     return chalk.yellowBright("No good. Video needs re-encoding to h264...")
   }
     
@@ -147,7 +225,7 @@ function readInputFile () {
     .usage('Usage: $0 [input video file]')
     .demandCommand(1, 1)
     .argv
-    ._;
+    ._[0];
 }
 
 async function parseVideoDescription (videoFile) {

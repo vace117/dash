@@ -42,6 +42,8 @@ mp4fragment in.mp4 out.mp4
 # Encoding multiple quality streams
 Source: https://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players/
 
+GOP (Group of Pictures) Explanation: https://kvssoft.wordpress.com/2015/01/28/mpeg-dash-gop/
+
 ```text
 ffmpeg -y -i 720p.mp4 -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 1200k -maxrate 1200k -bufsize 1000k -vf "scale=-1:720" outputfile720.mp4
 ```
