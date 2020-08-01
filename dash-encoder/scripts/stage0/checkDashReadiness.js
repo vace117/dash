@@ -3,8 +3,10 @@ const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
 
-const VIDEO_FILE = readInputFile();
+const ARGV = readInputFile()
+const VIDEO_FILE = ARGV._[0]
 const VIDEO_FILE_BASE = path.parse(VIDEO_FILE).name
+const OUTPUT_FILE_BASE = path.join(ARGV.outputDir, VIDEO_FILE_BASE)
 
 // These are selected using data from here: 
 // http://www.lighterra.com/papers/videoencodingh264/
@@ -49,21 +51,46 @@ const ACTION_PLAN = {
   console.log(ACTION_PLAN)
 
   console.log("== Script ==")
-  let command = '#!/bin/bash\n\n'
+  let command = '#!/bin/bash'
 
+  if ( ARGV.outputDir !== '.' ) {
+    command += '\n\n'
+    command += `mkdir ${ARGV.outputDir}`
+  }
+
+  let inputFile = VIDEO_FILE
+  let nextStageFile = `${OUTPUT_FILE_BASE}_ffmpeg.mp4`
   if ( ACTION_PLAN.container.repackage || ACTION_PLAN.video.reencode || ACTION_PLAN.audio.reencode ) {
+    command += '\n\n'
+    command += `printf '\\n\\nRe-encoding video and audio (as necessary) for "${VIDEO_FILE}"...\\n'\n`
     command += `ffmpeg -y -i '${VIDEO_FILE}' \\
    ${generateEncodeParameters()} \\
-   '${VIDEO_FILE_BASE}_out.mp4'`
+   '${nextStageFile}'\n`
+  }
+  else {
+    nextStageFile = inputFile
   }
 
   if ( ACTION_PLAN.container.fragment ) {
-    // TODO: Fragment
+    inputFile = nextStageFile
+    nextStageFile = `${OUTPUT_FILE_BASE}_frag.mp4`
+    command += '\n\n'
+    command += `printf '\\n\\nFragmenting the MP4 for "${VIDEO_FILE}"...\\n'\n`
+    command += `mp4fragment '${inputFile}' '${nextStageFile}'\n`
+    command += `rm '${inputFile}'\n`    
   }
 
+  inputFile = nextStageFile
+  nextStageFile = OUTPUT_FILE_BASE
+  command += '\n\n'
+  command += `printf '\\n\\nGenerating the DASH Presentation for "${VIDEO_FILE}"...\\n'\n`
+  command += `mp4dash '${inputFile}' -o '${nextStageFile}'\n`
+  command += `rm '${inputFile}'\n`
+
+
   console.log(command)
-  fs.writeFileSync(`${VIDEO_FILE_BASE}.sh`, command)
-  fs.chmodSync(`${VIDEO_FILE_BASE}.sh`, '755')
+  fs.writeFileSync(`encode_${VIDEO_FILE_BASE}.sh`, command)
+  fs.chmodSync(`encode_${VIDEO_FILE_BASE}.sh`, '755')
 })();
 
 function generateEncodeParameters() {
@@ -83,14 +110,16 @@ function generateVideoParameters() {
     const gop = frameRate * 5 // I-frame every 5 seconds
     const bitRateSetting = BIT_RATE_SETTINGS_PER_RESOLUTION[ACTION_PLAN.video.resolution_height]
 
-    encodeParameters += '-c:v libx264 -preset ultrafast '
-    encodeParameters += '-movflags faststart '
-    encodeParameters += `-flags +cgop -g ${gop} -sc_threshold 0 `
-    encodeParameters += `-x264opts 'keyint=${gop}:min-keyint=${gop}:no-scenecut' `
-    encodeParameters += `-b:v ${bitRateSetting.bitrate} `
-    encodeParameters += `-maxrate ${bitRateSetting.bitrate} `
-    encodeParameters += `-bufsize ${bitRateSetting.bufsize} `
-    //encodeParameters += `-vstats_file '${VIDEO_FILE_BASE}_vstats.txt' `
+    encodeParameters += `-c:v libx264 \\
+     -preset ultrafast \\
+     -movflags faststart \\
+     -flags +cgop -g ${gop} -sc_threshold 0 \\
+     -x264opts 'keyint=${gop}:min-keyint=${gop}:no-scenecut' \\
+     -b:v ${bitRateSetting.bitrate} \\
+     -maxrate ${bitRateSetting.bitrate} \\
+     -bufsize ${bitRateSetting.bufsize}`
+   
+     //-vstats_file '${OUTPUT_FILE_BASE}_vstats.txt' `
   }
   else {
     encodeParameters += '-c:v copy '
@@ -224,8 +253,11 @@ function readInputFile () {
   return require('yargs').help(false).version(false)
     .usage('Usage: $0 [input video file]')
     .demandCommand(1, 1)
+    .option('output-dir', {
+      alias: 'o',
+      default: '.'
+    })
     .argv
-    ._[0];
 }
 
 async function parseVideoDescription (videoFile) {
