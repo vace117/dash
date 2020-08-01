@@ -139,5 +139,5 @@ RUN npm install
 ENV PATH=${CUSTOM_SCRIPTS}/stage0:${PATH}
 
 USER ${UID}:${GID}
-WORKDIR /home/${USER}
+WORKDIR /mnt/video
 CMD ["bash"]
