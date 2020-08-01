@@ -53,6 +53,16 @@ gs://dash-video-storage/Dylan Werner/02 True Strength Fundamentals/Day 03 - Stre
 gs://dash-video-storage/dylan/stream.mpd
 ```
 
+## Delete Data Example
+```text
+gsutil -m rm -r 'gs://dash-video-storage/dylan'
+```
+
+## Move/Rename Data Example
+```text
+gsutil -m mv 'gs://dash-video-storage/Dylan Werner/' 'gs://dash-video-storage/Yoga/'
+```
+
 ## Data Access Example
 * Example of external URL used to access a bucket resource:
 https://storage.googleapis.com/dash-video-storage/dylan/stream.mpd
