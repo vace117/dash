@@ -7,6 +7,9 @@ const ARGV = readInputFile()
 const VIDEO_FILE = ARGV._[0]
 const VIDEO_FILE_BASE = path.parse(VIDEO_FILE).name
 const OUTPUT_FILE_BASE = path.join(ARGV.outputDir, VIDEO_FILE_BASE)
+const SCRIPT_DIR = ''
+const SCRIPT_FILE = path.join(SCRIPT_DIR, `${VIDEO_FILE_BASE}.sh`)
+
 
 // These are selected using data from here: 
 // http://www.lighterra.com/papers/videoencodingh264/
@@ -59,11 +62,18 @@ const ACTION_PLAN = {
   }
 
   let inputFile = VIDEO_FILE
+
+  if ( ACTION_PLAN.subtitles.reencode ) {
+    command += '\n\n'
+    command += `printf '\\n\\nRe-encoding subtitles for "${VIDEO_FILE}" into WebVTT format...\\n'\n`
+    command += `ffmpeg -y -txt_format text -i '${inputFile}' '${OUTPUT_FILE_BASE}.vtt'`
+  }
+
   let nextStageFile = `${OUTPUT_FILE_BASE}_ffmpeg.mp4`
   if ( ACTION_PLAN.container.repackage || ACTION_PLAN.video.reencode || ACTION_PLAN.audio.reencode ) {
     command += '\n\n'
     command += `printf '\\n\\nRe-encoding video and audio (as necessary) for "${VIDEO_FILE}"...\\n'\n`
-    command += `ffmpeg -y -i '${VIDEO_FILE}' \\
+    command += `ffmpeg -y -i '${inputFile}' \\
    ${generateEncodeParameters()} \\
    '${nextStageFile}'\n`
   }
@@ -77,20 +87,29 @@ const ACTION_PLAN = {
     command += '\n\n'
     command += `printf '\\n\\nFragmenting the MP4 for "${VIDEO_FILE}"...\\n'\n`
     command += `mp4fragment '${inputFile}' '${nextStageFile}'\n`
-    command += `rm '${inputFile}'\n`    
+    if ( inputFile !== VIDEO_FILE ) {
+      command += `rm '${inputFile}'\n`    
+    }
   }
 
   inputFile = nextStageFile
   nextStageFile = OUTPUT_FILE_BASE
   command += '\n\n'
   command += `printf '\\n\\nGenerating the DASH Presentation for "${VIDEO_FILE}"...\\n'\n`
-  command += `mp4dash '${inputFile}' -o '${nextStageFile}'\n`
+  command += `mp4dash '${inputFile}' ${generateDashParameters()} -o '${nextStageFile}'\n`
   command += `rm '${inputFile}'\n`
+  if ( ACTION_PLAN.subtitles.reencode ) {
+    command += `rm '${OUTPUT_FILE_BASE}.vtt'\n`
+  }
 
 
   console.log(command)
-  fs.writeFileSync(`encode_${VIDEO_FILE_BASE}.sh`, command)
-  fs.chmodSync(`encode_${VIDEO_FILE_BASE}.sh`, '755')
+
+  if ( SCRIPT_DIR !== '' && !fs.existsSync(SCRIPT_DIR)) {
+    fs.mkdirSync(SCRIPT_DIR)
+  }
+  fs.writeFileSync(`${SCRIPT_FILE}`, command)
+  fs.chmodSync(`${SCRIPT_FILE}`, '755')
 })();
 
 function generateEncodeParameters() {
@@ -100,6 +119,20 @@ function generateEncodeParameters() {
   else {
     return `${generateVideoParameters()} \\\n   ${generateAudioParameters()}`
   }
+}
+
+function generateDashParameters() {
+  let dashParameters = ''
+
+  if ( ACTION_PLAN.subtitles.reencode ) {
+    dashParameters += `'[+format=webvtt,+language=eng]${OUTPUT_FILE_BASE}.vtt'`
+  }
+
+  if ( !ACTION_PLAN.video.reencode ) {
+    dashParameters += ' --use-segment-timeline'
+  }
+
+  return dashParameters
 }
 
 function generateVideoParameters() {
