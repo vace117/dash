@@ -3,7 +3,7 @@
     <b-col id="loginPanel" class="bigScreenText">
       >>> SPEAK FRIEND AND ENTER &lt;&lt;&lt;
       <br/>
-      <b-form-input v-model="password" @keyup.enter="login" lazy type="password" class="bigInputText" />
+      <b-form-input v-model="password" @keyup.enter="login" lazy type="password" class="bigInputText" autofocus />
       <p/>
       <b-button @click.prevent="login" type="submit" size="funsize" variant="primary">LOGIN</b-button>
     </b-col>

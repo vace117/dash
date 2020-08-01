@@ -9,9 +9,16 @@
         <b-button v-if="errorsPresent" @click="goBackToLogin" size="lg" variant="warning" style="margin-left: 20px">LOGIN AGAIN</b-button>
       </div>
       <div v-show="pubSubInitCompletedInd">
+
+        <!-- Video Player -->
         <video id="videoPlayer" controls></video>
         <p/>
         <b-button @click="goBack" size="lg" variant="secondary">GO BACK</b-button>
+        <p/>
+
+        <!-- Current Link -->
+        <hr class="mediumHR"/>
+        <div class="smallestScreenText text-center">{{selectedVideoUrl}}</div>
       </div>
     </b-col>
   </b-row>
@@ -147,7 +154,7 @@ export default {
 
 <style scoped>
   video {
-      width: 70%;
+      width: 65%;
       background-color: #666666;
   }
 </style>

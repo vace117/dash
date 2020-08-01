@@ -6,7 +6,7 @@
     <div class="smallerScreenText text-center otherColor">
       (Or <span class="btn-link" style="cursor: pointer" @click="openUrlInputDialog">copy-and-paste</span> a link)
     </div>
-    <hr class="fatOne"/>
+    <hr class="fatHR"/>
 
     <!-- Video browser tree -->
     <Tree id="fileTree" ref="fileTree" :nodes="fileTreeData" :custom-options="fileTreeOptions" :custom-styles="fileTreeStyles"></Tree>
@@ -287,10 +287,4 @@ export default {
   .hide_folder_icon {
     display: none;
   }
-
-  .fatOne {
-    margin-top: 0px;
-    border: 5px solid;
-  }
-
 </style>
