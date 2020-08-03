@@ -2,6 +2,7 @@
 //
 $body-bg: #000;
 $body-color: #ffae00;
+$other-color: #3CAEA3;
 $enable-shadows: true;
 $primary: #28a745;
 $secondary: #ffc107;
@@ -78,7 +79,7 @@ $bigInputFg: yellowgreen;
 }
 
 .otherColor {
-  color: #3CAEA3;
+  color: $other-color;
 }
 
 .fatHR {
@@ -89,4 +90,12 @@ $bigInputFg: yellowgreen;
 .mediumHR {
   margin-top: 0px;
   border: 2px solid;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.screenSectionBorder {
+  border: 2px solid $body-color;
 }
