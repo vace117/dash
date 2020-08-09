@@ -26,8 +26,12 @@
               <b-col class="text-left pl-1 otherColor smallestScreenText">
                 <ul class="noBullets">
                   <li style="font-size: 1.3em">{{userName}}</li>
-                  <li v-for="remoteUser in crewRoster" :key="remoteUser">
+                  <li v-for="remoteUser in Object.keys(crewRoster)" :key="remoteUser">
                     {{remoteUser}}
+
+                    <div v-if="crewRoster[remoteUser].audioEstablished">
+                      <audio :id="'remoteAudio_' + remoteUser" playsinline autoplay></audio>
+                    </div>
                   </li>
                 </ul>
               </b-col>
@@ -40,7 +44,7 @@
             <hr class="mediumHR"/>
             <div class="smallestScreenText text-center">{{selectedVideoUrl}}</div>
             <p/>
-            <b-button @click="goBack" size="lg" variant="secondary">GO BACK</b-button>
+            <b-button @click="goBackToLogin" size="lg" variant="secondary">GO BACK</b-button>
           </b-col>
         </b-row>
       </div>
@@ -52,10 +56,11 @@
 import { mapFields } from 'vuex-map-fields'
 
 import createOrSubscribeToChannelForVideo from '@/pubsub/pusher.js'
+import WebRTCPeerManager from '@/webrtc/microphone.js'
 
 const _ = require('lodash/core')
 
-const KEEP_ALIVE_PERIOD_SECONDS = 15
+const KEEP_ALIVE_PERIOD_SECONDS = 1500
 const NodeCache = require('node-cache')
 const liveUserCache = new NodeCache({
   stdTTL:      KEEP_ALIVE_PERIOD_SECONDS + 5,
@@ -66,7 +71,7 @@ export default {
   data () {
     return {
       pubSubInitCompletedInd: false,
-      crewRoster: []
+      crewRoster: {}
     }
   },
 
@@ -74,8 +79,9 @@ export default {
     this.$store.commit('clearErrors')
     this.lastCommandReceived = null
     this.lastBroadcast = null
+    this.audioPeers = {}
 
-    this._initDashPlayer()
+    // this._initDashPlayer()
 
     createOrSubscribeToChannelForVideo({
       selectedVideoURL: this.$store.state.selectedVideoUrl,
@@ -85,8 +91,9 @@ export default {
         // Register Pub/Sub message processors
         //
         this.pubSubChannel = channel
-        this.pubSubChannel.bind('client-video-command',  this.processReceivedCommand)
-        this.pubSubChannel.bind('client-user-keepalive', this.processUserKeepAlive)
+        this.pubSubChannel.bind('client-video-command',    this.processReceivedCommand)
+        this.pubSubChannel.bind('client-user-keepalive',   this.processUserKeepAlive)
+        this.pubSubChannel.bind('client-webrtc-signaling', this.processSDPMessage)
         this.pubSubInitCompletedInd = true
 
         // Register Live User cache callbacks and begin sending out KeepAlive messages
@@ -122,6 +129,8 @@ export default {
 
       this.dashPlayer.reset()
       this.dashPlayer = null
+
+      Object.values(this.audioPeers).forEach(peer => peer.disconnect())
     },
 
     _initDashPlayer () {
@@ -135,21 +144,85 @@ export default {
       )
       this.dashPlayer.on('playbackPlaying', this.broadcastPlayerEvent)
       this.dashPlayer.on('playbackPaused',  this.broadcastPlayerEvent)
+
+      const videoElement = document.getElementById('videoPlayer')
+      videoElement.onkeydown = (e) => {
+        console.log(`DOWN: ${e.code}`)
+        this.dashPlayer.setVolume(0.1)
+        return e
+      }
+
+      videoElement.onkeyup = (e) => {
+        console.log(`UP: ${e.code}`)
+        this.dashPlayer.setVolume(1.0)
+        return e
+      }
     },
 
-    updateCrewRoster () {
-      this.crewRoster = liveUserCache.keys()
+    updateCrewRoster (e) {
+      for (const userName of liveUserCache.keys()) {
+        if (!this.crewRoster[userName]) {
+          this.crewRoster[userName] = {
+            audioEstablished: false
+          }
+        }
+      }
     },
 
     sendAliveMessage () {
-      console.log('Broadcasting our KeepAlive...')
+      // console.log('Broadcasting our KeepAlive...')
       this.pubSubChannel.trigger('client-user-keepalive', this.$store.state.userName)
     },
 
     processUserKeepAlive (remoteUserName) {
       if (remoteUserName !== this.$store.state.userName) {
-        console.log(`Received KeepAlive for ${remoteUserName}`)
+        // console.log(`Received KeepAlive for ${remoteUserName}`)
         liveUserCache.set(remoteUserName, null)
+
+        // Check if we already have an audio connection to this user, and establish if not
+        //
+        if (!this.audioPeers[remoteUserName]) {
+          const audioPeer = new WebRTCPeerManager(this.pubSubChannel, this.$store.state.userName, remoteUserName)
+
+          this.audioPeers[remoteUserName] = audioPeer
+          audioPeer.initiateConnectionToUser(remoteUserName).then(() => {
+            console.log(`Audio connection with ${remoteUserName} has been established!`)
+            this.crewRoster[remoteUserName].audioEstablished = true
+          })
+        }
+      }
+    },
+
+    processSDPMessage (message) {
+      if (message.toUser === this.$store.state.userName) {
+        const remoteUserName = message.fromUser
+
+        // If this is an offer for us, the WebRTCPeerManager might not exist yet - need to check
+        //
+        if (message.offer) {
+          // If this offer comes from a peer that we have not found yet, we need to create
+          // a new WebRTCPeerManager instance for it. However, we may have already sent
+          // our own offer to this peer, in which case WebRTCPeerManager already exists
+          //
+          if (!this.audioPeers[remoteUserName]) {
+            console.log(`Creating new WebRTCPeerManager, b/c received an offer from ${remoteUserName}`)
+            const audioPeer = new WebRTCPeerManager(this.pubSubChannel, this.$store.state.userName, remoteUserName)
+            this.audioPeers[remoteUserName] = audioPeer
+          }
+
+          this.audioPeers[remoteUserName].acceptConnectionFromUser(message.offer).then(() => {
+            console.log(`Audio connection with ${remoteUserName} has been established!`)
+            this.crewRoster[remoteUserName].audioEstablished = true
+          })
+        }
+        else {
+          try {
+            this.audioPeers[remoteUserName].processSDPMessage(message)
+          }
+          catch (e) {
+            this.$store.commit('updateErrors', `WebRTC is eating shit: ${e}`)
+          }
+        }
       }
     },
 
@@ -194,7 +267,7 @@ export default {
 
     broadcastPlayerEvent (payload) {
       if (!this.eventBroadcastLockedInd && !_.isEqual(payload, this.lastBroadcast)) {
-        console.log('Broadcasting Video Event: ' + JSON.stringify(payload))
+        // console.log('Broadcasting Video Event: ' + JSON.stringify(payload))
         this.lastBroadcast = payload
         this.pubSubChannel.trigger('client-video-command', payload)
         // Generate unique token and include in message for de-duplication
