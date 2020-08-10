@@ -1,4 +1,4 @@
-const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName) {
+const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName, disconnectCallback) {
   this.pubSubChannel = pubSubChannel
   this.localUserName = localUserName
   this.remoteUserName = remoteUserName
@@ -15,9 +15,19 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
   // audio stream
   //
   this.peerConnection.addEventListener('track', event => {
-    // document.getElementById(`remoteAudio_${this.remoteUserName}`).srcObject = event.streams[0]
-    // this.remoteAudioStream = MediaStream()
-    // this.remoteAudioStream.addTrack(event.track)
+    this.remoteAudioStream = new MediaStream()
+    document.getElementById(`remoteAudio_${this.remoteUserName}`).srcObject = this.remoteAudioStream
+    this.remoteAudioStream.addTrack(event.track)
+  })
+
+  this.peerConnection.addEventListener('connectionstatechange', event => {
+    if (this.peerConnection.connectionState === 'disconnected') {
+      console.log(`Cleaning up WebRTC channel to ${this.remoteUserName}, b/c they disconnected`)
+
+      this.disconnect()
+
+      disconnectCallback(this.remoteUserName)
+    }
   })
 
   // Send our ICE candidates to the peer as they become available
@@ -46,7 +56,12 @@ WebRTCPeerManager.prototype.initiateConnectionToUser = function (remoteUserName)
       }
     })
 
-    this.createAndSendSDPOffer()
+    try {
+      this.createAndSendSDPOffer()
+    }
+    catch (e) {
+      reject(e)
+    }
   })
 }
 
@@ -85,11 +100,15 @@ WebRTCPeerManager.prototype.acceptConnectionFromUser = function (offer) {
   })
 }
 
+WebRTCPeerManager.prototype.beginTransmittingAudio = function () {
+  document.getElementById(`remoteAudio_${this.remoteUserName}`).srcObject = this.localMediaStream
+}
+
 WebRTCPeerManager.prototype.createLocalMicrophoneTrack = function () {
   navigator.mediaDevices.getUserMedia({ video: false, audio: true })
     .then(localMediaStream => {
       this.localMediaStream = localMediaStream
-      const numOfAudioTracks = this.localMediaStream.getTracks().length
+      const numOfAudioTracks = this.localMediaStream.getAudioTracks().length
       if (numOfAudioTracks === 1) {
         console.log('Local microphone stream acquired.')
         this.peerConnection.addTrack(this.localMediaStream.getTracks()[0], this.localMediaStream)

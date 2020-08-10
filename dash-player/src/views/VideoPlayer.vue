@@ -29,6 +29,10 @@
                   <li v-for="remoteUser in Object.keys(crewRoster)" :key="remoteUser">
                     {{remoteUser}}
 
+                    <span v-if="crewRoster[remoteUser].audioEstablished" style="color: green">
+                      (Audio Connected)
+                    </span>
+
                     <div v-if="crewRoster[remoteUser].audioEstablished">
                       <audio :id="'remoteAudio_' + remoteUser" playsinline autoplay></audio>
                     </div>
@@ -53,6 +57,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapFields } from 'vuex-map-fields'
 
 import createOrSubscribeToChannelForVideo from '@/pubsub/pusher.js'
@@ -60,7 +65,7 @@ import WebRTCPeerManager from '@/webrtc/microphone.js'
 
 const _ = require('lodash/core')
 
-const KEEP_ALIVE_PERIOD_SECONDS = 1500
+const KEEP_ALIVE_PERIOD_SECONDS = 15
 const NodeCache = require('node-cache')
 const liveUserCache = new NodeCache({
   stdTTL:      KEEP_ALIVE_PERIOD_SECONDS + 5,
@@ -91,16 +96,16 @@ export default {
         // Register Pub/Sub message processors
         //
         this.pubSubChannel = channel
-        this.pubSubChannel.bind('client-video-command',    this.processReceivedCommand)
+        this.pubSubChannel.bind('client-video-command',    this.processReceivedVideoCommand)
         this.pubSubChannel.bind('client-user-keepalive',   this.processUserKeepAlive)
-        this.pubSubChannel.bind('client-webrtc-signaling', this.processSDPMessage)
+        this.pubSubChannel.bind('client-webrtc-signaling', this.processWebRTCSignaling)
         this.pubSubInitCompletedInd = true
 
         // Register Live User cache callbacks and begin sending out KeepAlive messages
         //
-        liveUserCache.on('set',     this.updateCrewRoster)
-        liveUserCache.on('expired', this.updateCrewRoster)
-        liveUserCache.on('flush',   this.updateCrewRoster)
+        liveUserCache.on('set',     this.addCrew)
+        liveUserCache.on('expired', this.removeCrew)
+        liveUserCache.on('flush',   this.removeCrew)
         liveUserCache.flushAll()
         this.sendAliveMessage()
         this.keepAliveTimer = setInterval(
@@ -118,19 +123,27 @@ export default {
     },
 
     goBackToLogin () {
+      this._tearDown()
       this.$router.push({ path: '/' })
     },
 
     _tearDown () {
       clearInterval(this.keepAliveTimer)
 
-      this.pubSubChannel.pusher.disconnect()
-      this.pubSubChannel = null
+      if (this.pubSubChannel) {
+        this.pubSubChannel.pusher.disconnect()
+        this.pubSubChannel = null
+      }
 
-      this.dashPlayer.reset()
-      this.dashPlayer = null
+      if (this.dashPlayer) {
+        this.dashPlayer.reset()
+        this.dashPlayer = null
+      }
 
-      Object.values(this.audioPeers).forEach(peer => peer.disconnect())
+      // Flushing all remote users from cache will result
+      // in WebRTC cleanup for each user as well
+      //
+      liveUserCache.flushAll()
     },
 
     _initDashPlayer () {
@@ -159,14 +172,40 @@ export default {
       }
     },
 
-    updateCrewRoster (e) {
+    // Goes through the users currently held in the expiring cache and adds any users
+    // that were not yet part of the Team Roster
+    //
+    addCrew () {
       for (const userName of liveUserCache.keys()) {
         if (!this.crewRoster[userName]) {
-          this.crewRoster[userName] = {
-            audioEstablished: false
-          }
+          this._addOrUpdateCrewMember(userName, { audioEstablished: false })
         }
       }
+    },
+
+    // Goes through the Team Roster and removes any users that are no longer
+    // in the user cache
+    //
+    removeCrew () {
+      Object
+        .keys(this.crewRoster)
+        .filter(user => !liveUserCache.get(user))
+        .forEach(deadUser => this._cleanupAfterUser(deadUser))
+    },
+
+    _cleanupAfterUser (user) {
+      // Disconnect and cleanup the WebRTC connection
+      //
+      this.audioPeers[user].disconnect()
+      delete this.audioPeers[user]
+
+      // Remove user from Team Roster on the screen
+      //
+      Vue.delete(this.crewRoster, user)
+    },
+
+    _addOrUpdateCrewMember (userName, metadata) {
+      Vue.set(this.crewRoster, userName, metadata)
     },
 
     sendAliveMessage () {
@@ -182,51 +221,77 @@ export default {
         // Check if we already have an audio connection to this user, and establish if not
         //
         if (!this.audioPeers[remoteUserName]) {
-          const audioPeer = new WebRTCPeerManager(this.pubSubChannel, this.$store.state.userName, remoteUserName)
-
-          this.audioPeers[remoteUserName] = audioPeer
-          audioPeer.initiateConnectionToUser(remoteUserName).then(() => {
-            console.log(`Audio connection with ${remoteUserName} has been established!`)
-            this.crewRoster[remoteUserName].audioEstablished = true
-          })
+          this._createWebRTCPeerManagerFor(remoteUserName)
+            .initiateConnectionToUser(remoteUserName)
+            .then(() => this.transmitAudioTo(remoteUserName))
         }
       }
     },
 
-    processSDPMessage (message) {
+    _createWebRTCPeerManagerFor (remoteUserName) {
+      const audioPeer = new WebRTCPeerManager(
+        this.pubSubChannel,
+        this.$store.state.userName,
+        remoteUserName,
+        (disconnectedUser) => {
+          this._cleanupAfterUser(disconnectedUser)
+        }
+      )
+
+      this.audioPeers[remoteUserName] = audioPeer
+
+      return audioPeer
+    },
+
+    processWebRTCSignaling (message) {
       if (message.toUser === this.$store.state.userName) {
         const remoteUserName = message.fromUser
 
-        // If this is an offer for us, the WebRTCPeerManager might not exist yet - need to check
-        //
-        if (message.offer) {
-          // If this offer comes from a peer that we have not found yet, we need to create
-          // a new WebRTCPeerManager instance for it. However, we may have already sent
-          // our own offer to this peer, in which case WebRTCPeerManager already exists
+        try {
+          // If this is an offer for us, the WebRTCPeerManager might not exist yet - need to check
           //
-          if (!this.audioPeers[remoteUserName]) {
-            console.log(`Creating new WebRTCPeerManager, b/c received an offer from ${remoteUserName}`)
-            const audioPeer = new WebRTCPeerManager(this.pubSubChannel, this.$store.state.userName, remoteUserName)
-            this.audioPeers[remoteUserName] = audioPeer
-          }
+          if (message.offer) {
+            // If this offer comes from a peer that we have not found yet, we need to create
+            // a new WebRTCPeerManager instance for it. However, we may have already sent
+            // our own offer to this peer, in which case WebRTCPeerManager already exists
+            //
+            if (!this.audioPeers[remoteUserName]) {
+              console.log(`Creating new WebRTCPeerManager, b/c received an offer from ${remoteUserName}`)
 
-          this.audioPeers[remoteUserName].acceptConnectionFromUser(message.offer).then(() => {
-            console.log(`Audio connection with ${remoteUserName} has been established!`)
-            this.crewRoster[remoteUserName].audioEstablished = true
-          })
-        }
-        else {
-          try {
+              this._createWebRTCPeerManagerFor(remoteUserName)
+            }
+
+            // Now we know that WebRTCPeerManager instance exists...
+            //
+            this.audioPeers[remoteUserName]
+              .acceptConnectionFromUser(message.offer)
+              .then(() => this.transmitAudioTo(remoteUserName))
+          }
+          else {
+            // Delegate processing to existing WebRTCPeerManager instance
+            //
             this.audioPeers[remoteUserName].processSDPMessage(message)
           }
-          catch (e) {
-            this.$store.commit('updateErrors', `WebRTC is eating shit: ${e}`)
-          }
+        }
+        catch (e) {
+          this.$store.commit('updateErrors', `WebRTC error: ${e}`)
         }
       }
     },
 
-    processReceivedCommand (command) {
+    transmitAudioTo (remoteUserName) {
+      console.log(`Audio connection with ${remoteUserName} has been established!`)
+
+      // This will reactively add an <audio /> tag for communicating with this remote user
+      //
+      this._addOrUpdateCrewMember(remoteUserName, { audioEstablished: true })
+
+      // Wait until DOM is updated with the <audio /> tag before transmitting
+      //
+      Vue.nextTick(() => this.audioPeers[remoteUserName].beginTransmittingAudio())
+    },
+
+    processReceivedVideoCommand (command) {
       if (!_.isEqual(command, this.lastCommandReceived)) {
         this._withBroadcastLock(() => {
           console.log(`Received command: ${JSON.stringify(command)}`)
