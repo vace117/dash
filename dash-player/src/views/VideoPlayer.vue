@@ -196,12 +196,18 @@ export default {
     _cleanupAfterUser (user) {
       // Disconnect and cleanup the WebRTC connection
       //
-      this.audioPeers[user].disconnect()
-      delete this.audioPeers[user]
+      if (this.audioPeers[user]) {
+        this.audioPeers[user].disconnect()
+        delete this.audioPeers[user]
+        console.log(`WebRTC channel to ${user} has been removed.`)
+      }
 
       // Remove user from Team Roster on the screen
       //
-      Vue.delete(this.crewRoster, user)
+      if (this.crewRoster[user]) {
+        Vue.delete(this.crewRoster, user)
+        console.log(`${user} has been removed from the Team Roster.`)
+      }
     },
 
     _addOrUpdateCrewMember (userName, metadata) {

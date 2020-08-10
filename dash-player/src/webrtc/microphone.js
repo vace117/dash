@@ -22,7 +22,7 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
 
   this.peerConnection.addEventListener('connectionstatechange', event => {
     if (this.peerConnection.connectionState === 'disconnected') {
-      console.log(`Cleaning up WebRTC channel to ${this.remoteUserName}, b/c they disconnected`)
+      console.log(`WebRTC: Cleaning up WebRTC channel to ${this.remoteUserName}, b/c they disconnected...`)
 
       this.disconnect()
 
@@ -34,7 +34,7 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
   //
   this.peerConnection.addEventListener('icecandidate', event => {
     if (event.candidate) {
-      console.log(`Sending new ICE candidate to ${this.remoteUserName}:\n${JSON.stringify(event.candidate)}`)
+      console.log(`WebRTC: Sending new ICE candidate to ${this.remoteUserName}: ${JSON.stringify(event.candidate)}`)
       this.pubSubChannel.trigger('client-webrtc-signaling', {
         fromUser: this.localUserName,
         toUser:   this.remoteUserName,
@@ -57,6 +57,7 @@ WebRTCPeerManager.prototype.initiateConnectionToUser = function (remoteUserName)
     })
 
     try {
+      console.log(`WebRTC: Initiating audio connection to ${this.remoteUserName}...`)
       this.createAndSendSDPOffer()
     }
     catch (e) {
@@ -78,12 +79,13 @@ WebRTCPeerManager.prototype.acceptConnectionFromUser = function (offer) {
     if (offer) {
       if (!this.offerSent) {
         this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
-        console.log(`RemoteDescription on ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
+        console.log(`WebRTC: Received an Offer from ${this.remoteUserName}`)
+        // console.log(`WebRTC: RemoteDescription on ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
 
         this.peerConnection.createAnswer().then(answer => {
           this.peerConnection.setLocalDescription(answer).then(() => {
-            console.log(`LocalDescription on ${this.localUserName} is set to: ${JSON.stringify(answer)}`)
-            console.log(`Transmitting this answer to ${this.remoteUserName}...`)
+            // console.log(`WebRTC: LocalDescription on ${this.localUserName} is set to: ${JSON.stringify(answer)}`)
+            console.log(`WebRTC: Transmitting Answer to ${this.remoteUserName}...`)
 
             this.pubSubChannel.trigger('client-webrtc-signaling', {
               fromUser: this.localUserName,
@@ -94,7 +96,7 @@ WebRTCPeerManager.prototype.acceptConnectionFromUser = function (offer) {
         })
       }
       else {
-        console.log(`Dropping offer from ${this.remoteUserName}, b/c we have already sent our own offer to them.`)
+        console.log(`WebRTC: Dropping offer from ${this.remoteUserName}, b/c we have already sent our own offer to them.`)
       }
     }
   })
@@ -110,7 +112,7 @@ WebRTCPeerManager.prototype.createLocalMicrophoneTrack = function () {
       this.localMediaStream = localMediaStream
       const numOfAudioTracks = this.localMediaStream.getAudioTracks().length
       if (numOfAudioTracks === 1) {
-        console.log('Local microphone stream acquired.')
+        console.log('WebRTC: Local microphone stream acquired.')
         this.peerConnection.addTrack(this.localMediaStream.getTracks()[0], this.localMediaStream)
       }
       else {
@@ -125,7 +127,8 @@ WebRTCPeerManager.prototype.processSDPMessage = function (message) {
   if (message.answer) {
     this.peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer))
       .then(() => {
-        console.log(`RemoteDescription from ${message.fromUser} is set:\n${JSON.stringify(message.answer)}`)
+        console.log(`WebRTC: Received Answer from ${message.fromUser}`)
+        // console.log(`WebRTC: RemoteDescription from ${message.fromUser} is set:\n${JSON.stringify(message.answer)}`)
       })
   }
 
@@ -133,7 +136,7 @@ WebRTCPeerManager.prototype.processSDPMessage = function (message) {
   //
   else if (message.iceCandidate) {
     this.peerConnection.addIceCandidate(message.iceCandidate).then(() => {
-      console.log(`ICE Candidate from ${message.fromUser} is added:\n${JSON.stringify(message.iceCandidate)}`)
+      console.log(`WebRTC: ICE Candidate from ${message.fromUser} is added: ${JSON.stringify(message.iceCandidate)}`)
     })
   }
 }
@@ -141,9 +144,8 @@ WebRTCPeerManager.prototype.processSDPMessage = function (message) {
 WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
   this.peerConnection.createOffer({ offerToReceiveAudio: 1, offerToReceiveVideo: 0 }).then(offer => {
     this.peerConnection.setLocalDescription(offer).then(() => {
-      console.log(`LocalDescription for ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
-      console.log(`Transmitting this offer to ${this.remoteUserName}...`)
-      console.log(`ICE State: ${this.peerConnection.iceGatheringState}`)
+      // console.log(`WebRTC: LocalDescription for ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
+      console.log(`WebRTC: Transmitting offer to ${this.remoteUserName}...`)
 
       this.pubSubChannel.trigger('client-webrtc-signaling', {
         fromUser: this.localUserName,
