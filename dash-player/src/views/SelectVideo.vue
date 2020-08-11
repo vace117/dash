@@ -227,8 +227,10 @@ export default {
       return {
         tree: {
           height: 'auto',
-          overflowY: 'auto',
-          display: 'inline-block'
+          'max-height': '100%',
+          overflowY: 'visible',
+          display: 'inline-block',
+          width: '100%'
         },
         selectIcon: {
           class: 'hide_folder_icon',
@@ -241,7 +243,8 @@ export default {
           width: '100%',
           cursor: 'pointer',
           child: {
-            height: '55px'
+            height: 'auto',
+            'white-space': 'nowrap'
           }
         },
         text: {
@@ -287,4 +290,5 @@ export default {
   .hide_folder_icon {
     display: none;
   }
+
 </style>
