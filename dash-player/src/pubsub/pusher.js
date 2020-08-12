@@ -29,8 +29,8 @@ export default function createOrSubscribeToChannelForVideo ({ selectedVideoURL, 
 }
 
 function _createClient (clientPassword) {
-//  return new Pusher('e5177df52242aa7b7378', {
-  return new Pusher('4f1ab39f3acaeb49a37c', {
+//  return new Pusher('4f1ab39f3acaeb49a37c', {
+  return new Pusher('e5177df52242aa7b7378', {
     cluster: 'us2',
     authEndpoint: auth.pusher_endpoint,
     auth: {
