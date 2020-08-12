@@ -86,7 +86,7 @@ export default {
     this.lastBroadcast = null
     this.audioPeers = {}
 
-    // this._initDashPlayer()
+    this._initDashPlayer()
 
     createOrSubscribeToChannelForVideo({
       selectedVideoURL: this.$store.state.selectedVideoUrl,
