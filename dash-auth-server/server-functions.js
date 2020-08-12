@@ -1,3 +1,9 @@
+/**
+ * The functions in this file are executed directly as Google Cloud Functions
+ * 
+ * See 'deployGoogleFunctions.sh' for details on the mapping
+ */
+
 const fs = require('fs')
 const SECRETS = JSON.parse( fs.readFileSync('secrets-1027455.json') )
 
@@ -13,7 +19,7 @@ const pusher = new PusherServer({
 
 exports.appAuthentication = function(req, res) {
     _withCORSHandling(req, res, () => {
-        console.log(`Received authentication request from '${req.headers['origin']}' using '${req.headers['user-agent']}'`)
+        console.log(`Received authentication request from '${req.headers['user-agent']}'`)
 
         if ( _checkPassword (req.body.password) ) {
             console.log('Successfully authenticated application client.')
@@ -28,7 +34,7 @@ exports.appAuthentication = function(req, res) {
 
 exports.pusherAuthentication = function(req, res) {
     _withCORSHandling(req, res, () => {
-        console.log(`Received authentication request from '${req.headers['origin']}' using '${req.headers['user-agent']}'`)
+        console.log(`Received authentication request from '${req.headers['user-agent']}'`)
 
         const socketId = req.body.socket_id
         const channel = req.body.channel_name
