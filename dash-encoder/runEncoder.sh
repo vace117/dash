@@ -5,7 +5,7 @@ if [ -z "$1" ] ; then
     exit 1
 fi
 
-VIDEO_DIR=`readlink -f $1`
+VIDEO_DIR=`readlink -f "$1"`
 
 if [ ! -d "$VIDEO_DIR" ] ; then 
     printf "\n   '$VIDEO_DIR' does not exist!\n\n"

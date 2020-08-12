@@ -99,3 +99,11 @@ $bigInputFg: yellowgreen;
 .screenSectionBorder {
   border: 2px solid $body-color;
 }
+
+// Selected tree node
+//
+div.row_data:hover {
+  background-color: #9698FD;
+  color: #000;
+  font-weight: bolder;
+}

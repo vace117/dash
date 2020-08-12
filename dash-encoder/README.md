@@ -11,33 +11,52 @@ docker build -t vace117/dash-encoder .
 All of the commands below should be executed from the Docker image.
 
 # Creating a DASH Presentation
+## Single Video File
+```text
+$ generateEncoderBash.sh [-o output_dir] <input_video.mp4>
+$ ./input_video.sh
+```
+This generates the BASH file with all the commands for you, and then you run it.
 
-## 1) Transcoding to MP4
+## Directory of Video Files
+```text
+$ cd <input_dir>
+$ ls | parallel -q generateEncoderBash.sh [-o output_dir] :::
+$ ls *.sh | parallel --progress bash :::
+```
+This generates BASH files for each video and then you run them all using a worker pool with number of threads equal to the number of cores you have on your CPU.
+
+# Upload DASH Presentations
+Find the target path by getting the current listing from the bucket:
+```text
+$ uploadDashPresentations.sh <local_dir> [<target_path_in_google_bucket>]
+```
+
+If you run this command w/o the 2nd parameter, it will list the existing videos in the Google bucket to help you figure out what `<target_path_in_google_bucket>` should be.
+
+
+
+# Supporting info
+## Transcoding to MP4
 Our video must be packaged inside an MP4 container, that contains:
 * H264 Video
 * AAC Audio
 
-In order to check what your input has, run:
+In order encode to check what your input has, run:
 ```text
-$ checkDashReadiness.sh <input video file>
-
-Analyzing DASH Readiness...
-  Video:     OK!
-  Audio:     Needs re-encoding to AAC :(
-  Subtitles: Must be converted to WebVTT
+$ generateEncoderBash.sh <input video file>
 ```
 
-### Encoding Video to h264
+This will tell you what you need to know and generate a BASH file with all the commands for you.
+
+# Encoding Video to h264
 If your input video is not already encoded in `h264`, you must re-encode it.
-
-
 
 # Creating fragmented MP4 files
 Fast method that does not re-encode the file:
 ```text
 mp4fragment in.mp4 out.mp4
 ```
-
 
 # Encoding multiple quality streams
 Source: https://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players/

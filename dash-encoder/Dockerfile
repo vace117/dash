@@ -127,6 +127,25 @@ RUN wget -q -O- https://deb.nodesource.com/setup_12.x | bash - \
 USER ${UID}:${GID}
 
 ########################################
+# Install Parallel
+########################################
+USER root
+RUN apt-get install -y parallel
+USER ${UID}:${GID}
+
+########################################
+# Install GCloud utils
+########################################
+USER root
+RUN apt-get update && apt-get install -y curl \
+ && curl https://sdk.cloud.google.com | bash \
+ && chown -R "${USER}:${USER}" "/home/${USER}/.config"
+
+USER ${UID}:${GID}
+RUN echo ". /home/${USER}/google-cloud-sdk/completion.bash.inc" >> "/home/${USER}/.bashrc"
+RUN echo ". /home/${USER}/google-cloud-sdk/path.bash.inc"       >> "/home/${USER}/.bashrc"
+
+########################################
 # Install Custom Helper Scripts
 ########################################
 USER root

@@ -58,7 +58,7 @@ const ACTION_PLAN = {
 
   if ( ARGV.outputDir !== '.' ) {
     command += '\n\n'
-    command += `mkdir ${ARGV.outputDir}`
+    command += `mkdir -p '${ARGV.outputDir}'`
   }
 
   let inputFile = VIDEO_FILE

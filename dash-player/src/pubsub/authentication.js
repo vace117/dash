@@ -1,6 +1,6 @@
-const AUTH_HOST = 'http://vace.homelinux.com:7778'
+const AUTH_HOST = 'https://us-central1-dash-281402.cloudfunctions.net'
 
 export default {
-  application_endpoint: `${AUTH_HOST}/dash-app/auth`,
-  pusher_endpoint:      `${AUTH_HOST}/pusher/auth`
+  application_endpoint: `${AUTH_HOST}/authApp`,
+  pusher_endpoint:      `${AUTH_HOST}/authPusher`
 }
