@@ -29,11 +29,8 @@
                   <li v-for="remoteUser in Object.keys(crewRoster)" :key="remoteUser" style="border-top: 1px solid">
                     {{remoteUser}}
 
-                    <span v-if="crewRoster[remoteUser].audioEstablished" style="color: green">
-                      (Audio Connected)
-                    </span>
-
-                    <div v-if="crewRoster[remoteUser].audioEstablished">
+                    <div v-if="crewRoster[remoteUser].audioEstablished" style="display:inline;">
+                      <img src="@/assets/images/wave2.png" width="45rem">
                       <audio :id="'remoteAudio_' + remoteUser" playsinline autoplay></audio>
                     </div>
                   </li>
