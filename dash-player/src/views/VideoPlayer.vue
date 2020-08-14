@@ -11,22 +11,22 @@
       <div v-show="pubSubInitCompletedInd">
 
         <b-row no-gutters>
-          <b-col cols="10" class="p-3">
+          <b-col md="12" lg="9" class="p-3">
             <!-- Video Player -->
             <video id="videoPlayer" controls></video>
           </b-col>
           <b-col class="screenSectionBorder">
             <b-row>
               <b-col>
-                <span class="smallerScreenText nowrap">Team Roster</span>
+                <span class="smallerScreenText">Team Roster</span>
                 <hr class="mediumHR"/>
               </b-col>
             </b-row>
             <b-row>
-              <b-col class="text-left pl-1 otherColor smallestScreenText">
+              <b-col class="text-left pl-1 star-trek-color-1 smallestScreenText">
                 <ul class="noBullets">
                   <li style="font-size: 1.3em">{{userName}}</li>
-                  <li v-for="remoteUser in Object.keys(crewRoster)" :key="remoteUser">
+                  <li v-for="remoteUser in Object.keys(crewRoster)" :key="remoteUser" style="border-top: 1px solid">
                     {{remoteUser}}
 
                     <span v-if="crewRoster[remoteUser].audioEstablished" style="color: green">
@@ -46,7 +46,7 @@
           <b-col>
             <!-- Current Link -->
             <hr class="mediumHR"/>
-            <div class="smallestScreenText text-center">{{selectedVideoUrl}}</div>
+            <div class="smallestScreenText text-center star-trek-color-2">{{selectedVideoUrl}}</div>
             <p/>
             <b-button @click="goBackToLogin" size="lg" variant="secondary">GO BACK</b-button>
           </b-col>
@@ -363,7 +363,7 @@ export default {
 
 <style scoped>
   video {
-      width: 80%;
+      width: 85%;
       background-color: #666666;
   }
 
