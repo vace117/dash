@@ -8,8 +8,6 @@
         <b-spinner type="grow" variant="warning" style="width: 3em; height: 3em;" />
         <p/>
         <span style="font-size: large">Please wait...</span>
-        <p/>
-        <b-button v-if="errorsPresent" @click="goBackToLogin" size="lg" variant="warning" style="margin-left: 20px">LOGIN AGAIN</b-button>
       </div>
       <div v-show="!loginInProggressInd">
         <b-row align-v="center">
