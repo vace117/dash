@@ -56,7 +56,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    login (context) {
+    login (context, errorCallback) {
       postServerQuery({
         restEndpoint: auth.application_endpoint,
         query: JSON.stringify({ password: context.state.password })
@@ -69,10 +69,10 @@ export default new Vuex.Store({
         })
         .catch(error => {
           if (error.response.status === 403) {
-            context.commit('updateErrors', 'Incorrect Password! Dispatching ninja drones...')
+            errorCallback('Incorrect Password! Dispatching ninja drones...')
           }
           else {
-            context.commit(error)
+            errorCallback(error)
           }
         })
     }
