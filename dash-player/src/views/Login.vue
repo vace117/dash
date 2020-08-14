@@ -1,18 +1,18 @@
 <template>
   <b-row align-h="center" class="text-center">
     <b-col id="loginPanel" class="bigScreenText">
-      >>> SPEAK FRIEND AND ENTER &lt;&lt;&lt;
-      <hr class="fatHR"/>
+      <span>SPEAK FRIEND AND ENTER</span>
+      <hr class="fatHR star-trek-color-1"/>
       <br/>
       <b-row align-v="center">
-        <b-col cols="3" class="text-left">Thy Name: </b-col>
-        <b-col cols="7" class="p-3">
+        <b-col md="12" lg="4" class="text-left pr-5 nowrap">Thy Name: </b-col>
+        <b-col md="6" lg="7" class="p-3">
           <b-form-input v-model="userName" @keyup.enter="login" lazy type="text" class="bigInputText" autofocus />
         </b-col>
       </b-row>
       <b-row align-v="center">
-        <b-col cols="3" class="text-left">Thy Secret:</b-col>
-        <b-col cols="7" class="p-3">
+        <b-col md="12" lg="4" class="text-left pr-5 nowrap">Thy Secret:</b-col>
+        <b-col md="6" lg="7" class="p-3">
           <b-form-input v-model="password" @keyup.enter="login" lazy type="password" class="bigInputText" />
         </b-col>
       </b-row>

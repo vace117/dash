@@ -3,6 +3,8 @@
 $body-bg: #000;
 $body-color: #ffae00;
 $other-color: #3CAEA3;
+$star-trek-color-1: #9698FD;
+$star-trek-color-2: #CB6362;
 $enable-shadows: true;
 $primary: #28a745;
 $secondary: #ffc107;
@@ -19,7 +21,7 @@ body {
 }
 
 .bigScreenText {
-  font-size: 4em;
+  font-size: 4rem;
   font-weight: bold;
 }
 
@@ -103,7 +105,14 @@ $bigInputFg: yellowgreen;
 // Selected tree node
 //
 div.row_data:hover {
-  background-color: #9698FD;
+  background-color: $star-trek-color-1;
   color: #000;
   font-weight: bolder;
+}
+
+.star-trek-color-1 {
+  color: $star-trek-color-1;
+}
+.star-trek-color-2 {
+  color: $star-trek-color-2
 }
