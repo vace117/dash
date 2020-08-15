@@ -48,6 +48,11 @@
             <b-button @click="goBackToLogin" size="lg" variant="secondary">GO BACK</b-button>
           </b-col>
         </b-row>
+        <b-row no-gutters class="mt-3">
+          <b-col>
+            <div class="stats-box text-left" />
+          </b-col>
+        </b-row>
       </div>
     </b-col>
   </b-row>
@@ -83,7 +88,7 @@ export default {
     this.lastBroadcast = null
     this.audioPeers = {}
 
-    this._initDashPlayer()
+    // this._initDashPlayer()
 
     createOrSubscribeToChannelForVideo({
       selectedVideoURL: this.$store.state.selectedVideoUrl,
@@ -226,7 +231,7 @@ export default {
         if (!this.audioPeers[remoteUserName]) {
           this._createWebRTCPeerManagerFor(remoteUserName)
             .initiateConnectionToUser(remoteUserName)
-            .then(() => this.transmitAudioTo(remoteUserName))
+            .then(() => this.beginAudioPlaybackFrom(remoteUserName))
         }
       }
     },
@@ -268,7 +273,7 @@ export default {
             //
             this.audioPeers[remoteUserName]
               .acceptConnectionFromUser(message.offer)
-              .then(() => this.transmitAudioTo(remoteUserName))
+              .then(() => this.beginAudioPlaybackFrom(remoteUserName))
           }
           else {
             // Delegate processing to existing WebRTCPeerManager instance
@@ -282,7 +287,7 @@ export default {
       }
     },
 
-    transmitAudioTo (remoteUserName) {
+    beginAudioPlaybackFrom (remoteUserName) {
       console.log(`Audio connection with ${remoteUserName} has been established!`)
 
       // This will reactively add an <audio /> tag for communicating with this remote user
@@ -291,7 +296,7 @@ export default {
 
       // Wait until DOM is updated with the <audio /> tag before transmitting
       //
-      Vue.nextTick(() => this.audioPeers[remoteUserName].beginTransmittingAudio())
+      Vue.nextTick(() => this.audioPeers[remoteUserName].beginAudioPlayback())
     },
 
     processReceivedVideoCommand (command) {
