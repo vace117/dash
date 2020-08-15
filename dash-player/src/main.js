@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 
 // import { BootstrapVue } from 'bootstrap-vue'
-import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin, ModalPlugin } from 'bootstrap-vue'
+import { LayoutPlugin, FormInputPlugin, ButtonPlugin, SpinnerPlugin, ModalPlugin, FormCheckboxPlugin } from 'bootstrap-vue'
 
 import '@/assets/styles/global-styles.scss'
 
@@ -18,6 +18,7 @@ Vue.use(FormInputPlugin)
 Vue.use(ButtonPlugin)
 Vue.use(SpinnerPlugin)
 Vue.use(ModalPlugin)
+Vue.use(FormCheckboxPlugin)
 
 Vue.config.productionTip = false
 

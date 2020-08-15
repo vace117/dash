@@ -5,6 +5,7 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
 
   this.peerConnection = null
   this.remoteAudioStream = null
+  this.localMicTrack = null
 
   this.peerConnection = new RTCPeerConnection({
     iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }]
@@ -92,14 +93,14 @@ WebRTCPeerManager.prototype.acceptConnectionFromUser = function (offer) {
       if (!this.offerSent) {
         console.log(`WebRTC: Received an Offer from ${this.remoteUserName}`)
         this.peerConnection.setRemoteDescription(offer).then(() => {
-          console.log(`WebRTC: RemoteDescription on ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
+          // console.log(`WebRTC: RemoteDescription on ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
 
           // Add local microphone track to the connection
           //
           this.createLocalMicrophoneTrack().then(lms => {
             this.peerConnection.createAnswer().then(answer => {
               this.peerConnection.setLocalDescription(answer).then(() => {
-                console.log(`WebRTC: LocalDescription on ${this.localUserName} is set to: ${JSON.stringify(answer)}`)
+                // console.log(`WebRTC: LocalDescription on ${this.localUserName} is set to: ${JSON.stringify(answer)}`)
                 console.log(`WebRTC: Transmitting Answer to ${this.remoteUserName}...`)
 
                 this.pubSubChannel.trigger('client-webrtc-signaling', {
@@ -144,7 +145,8 @@ WebRTCPeerManager.prototype.createLocalMicrophoneTrack = function () {
         const numOfAudioTracks = localMediaStream.getAudioTracks().length
         if (numOfAudioTracks === 1) {
           console.log('WebRTC: Local microphone stream acquired.')
-          this.peerConnection.addTrack(localMediaStream.getTracks()[0], localMediaStream)
+          this.localMicTrack = localMediaStream.getTracks()[0]
+          this.peerConnection.addTrack(this.localMicTrack, localMediaStream)
           resolve(localMediaStream)
         }
         else {
@@ -163,7 +165,7 @@ WebRTCPeerManager.prototype.processSDPMessage = function (message) {
     this.peerConnection.setRemoteDescription(message.answer)
       .then(() => {
         console.log(`WebRTC: Received Answer from ${message.fromUser}`)
-        console.log(`WebRTC: RemoteDescription from ${message.fromUser} is set:\n${JSON.stringify(message.answer)}`)
+        // console.log(`WebRTC: RemoteDescription from ${message.fromUser} is set:\n${JSON.stringify(message.answer)}`)
       })
   }
 
@@ -185,7 +187,7 @@ WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
     voiceActivityDetection: false
   }).then(offer => {
     this.peerConnection.setLocalDescription(offer).then(() => {
-      console.log(`WebRTC: LocalDescription for ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
+      // console.log(`WebRTC: LocalDescription for ${this.localUserName} is set to: ${JSON.stringify(offer)}`)
       console.log(`WebRTC: Transmitting offer to ${this.remoteUserName}...`)
 
       this.pubSubChannel.trigger('client-webrtc-signaling', {
@@ -202,6 +204,13 @@ WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
 WebRTCPeerManager.prototype.disconnect = function () {
   this.peerConnection.close()
   clearInterval(this.statsMonitor)
+}
+
+WebRTCPeerManager.prototype.applyMicrophoneState = function (micMutedInd) {
+  if (this.localMicTrack) {
+    this.localMicTrack.enabled = !micMutedInd
+    console.log(`Microphone muted: ${!this.localMicTrack.enabled} on ${this.remoteUserName} connection.`)
+  }
 }
 
 // This is no longer used, b/c we can get the same info at 'chrome://webrtc-internals/'

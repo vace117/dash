@@ -37,6 +37,19 @@
                 </ul>
               </b-col>
             </b-row>
+            <b-row v-if="audioPeersPresent">
+              <b-col>
+                <span class="smallerScreenText">Comms</span>
+                <hr class="mediumHR"/>
+              </b-col>
+            </b-row>
+            <b-row v-if="audioPeersPresent">
+              <b-col class="ml-2 mb-3 smallestScreenText">
+                <b-form-checkbox v-model="micMutedInd" size="lg" button :button-variant="micMutedInd ? 'danger' : 'primary'">
+                  {{micMutedInd ? 'Unmute' : 'Mute'}} Microphone
+                </b-form-checkbox>
+              </b-col>
+            </b-row>
           </b-col>
         </b-row>
         <b-row no-gutters class="mt-3">
@@ -45,7 +58,7 @@
             <hr class="mediumHR"/>
             <div class="smallestScreenText text-center star-trek-color-2">{{selectedVideoUrl}}</div>
             <p/>
-            <b-button @click="goBackToLogin" size="lg" variant="secondary">GO BACK</b-button>
+            <b-button @click="goBack" size="lg" variant="secondary">GO BACK</b-button>
           </b-col>
         </b-row>
         <b-row no-gutters class="mt-3">
@@ -78,7 +91,8 @@ export default {
   data () {
     return {
       pubSubInitCompletedInd: false,
-      crewRoster: {}
+      crewRoster: {},
+      micMutedInd: false
     }
   },
 
@@ -88,7 +102,7 @@ export default {
     this.lastBroadcast = null
     this.audioPeers = {}
 
-    // this._initDashPlayer()
+    this._initDashPlayer()
 
     createOrSubscribeToChannelForVideo({
       selectedVideoURL: this.$store.state.selectedVideoUrl,
@@ -357,6 +371,20 @@ export default {
 
     errorsPresent () {
       return this.$store.getters.errorsPresent
+    },
+
+    audioPeersPresent () {
+      return Object
+        .values(this.crewRoster)
+        .filter(user => user.audioEstablished)
+        .length > 0
+    }
+
+  },
+
+  watch: {
+    micMutedInd (newMuteState) {
+      Object.values(this.audioPeers).forEach(pc => pc.applyMicrophoneState(newMuteState))
     }
   }
 
