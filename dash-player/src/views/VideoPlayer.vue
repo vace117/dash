@@ -9,9 +9,43 @@
         <b-button v-if="errorsPresent" @click="goBackToLogin" size="lg" variant="warning" style="margin-left: 20px">LOGIN AGAIN</b-button>
       </div>
       <div v-show="pubSubInitCompletedInd">
-
         <b-row no-gutters>
-          <b-col md="12" lg="9" class="p-3">
+          <b-col md="12" lg="9">
+            <span class="smallerScreenText">{{videoTitle}}</span>
+            <span class="smallerScreenText text-center otherColor">
+              (<span class="btn-link" @click="openLinkShareDialog" style="cursor: pointer">share a link</span>)
+            </span>
+            <p/>
+
+            <!-- Link Share Dialog -->
+            <b-modal id="linkShareModal" ref="linkShareModal" title="Tell your friends..."
+                size="xl"
+                title-class="mediumScreenText"
+                header-bg-variant="warning"
+                header-text-variant="dark"
+                header-class="darkBottomBorder"
+                footer-class="darkTopBorder"
+                bodyBgVariant="dark"
+                footer-bg-variant="dark"
+                ok-only>
+              <b-container fluid>
+                <b-row>
+                  <b-col class="smallestScreenText">
+                    {{directVideoLink}}
+                  </b-col>
+                </b-row>
+              </b-container>
+              <template v-slot:modal-footer>
+                <b-container fluid>
+                <b-row align-v="center" class="text-center" style="height: 90%">
+                  <b-col>
+                    <b-button @click="copyLinkToClipboard" size="funsize" variant="primary">COPY</b-button>
+                  </b-col>
+                </b-row>
+                </b-container>
+              </template>
+            </b-modal>
+
             <!-- Video Player -->
             <video id="videoPlayer" controls></video>
           </b-col>
@@ -56,7 +90,6 @@
           <b-col>
             <!-- Current Link -->
             <hr class="mediumHR"/>
-            <div class="smallestScreenText text-center star-trek-color-2">{{selectedVideoUrl}}</div>
             <p/>
             <b-button @click="goBack" size="lg" variant="secondary">GO BACK</b-button>
           </b-col>
@@ -77,6 +110,7 @@ import { mapFields } from 'vuex-map-fields'
 
 import createOrSubscribeToChannelForVideo from '@/pubsub/pusher.js'
 import WebRTCPeerManager from '@/webrtc/microphone.js'
+import GoogleBucket from '@/google-bucket/googleBucket'
 
 const _ = require('lodash/core')
 
@@ -362,6 +396,26 @@ export default {
       else {
         // console.log(`Broadcast of ${JSON.stringify(payload)} was blocked.`)
       }
+    },
+
+    openLinkShareDialog () {
+      this.$refs.linkShareModal.show()
+    },
+
+    copyLinkToClipboard () {
+      const clipError = 'Unable to automatically copy link into your clipboard. Please copy it manually.'
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(this.directVideoLink).then(
+          () => {},
+          () => { this.$store.commit('updateErrors', clipError) }
+        )
+      }
+      else {
+        this.$store.commit('updateErrors', clipError)
+      }
+
+      this.$refs.linkShareModal.hide()
     }
 
   },
@@ -378,8 +432,20 @@ export default {
         .values(this.crewRoster)
         .filter(user => user.audioEstablished)
         .length > 0
-    }
+    },
 
+    videoTitle () {
+      return GoogleBucket.getVideoTitle(this.$store.state.selectedVideoUrl)
+    },
+
+    directVideoLink () {
+      const videoTitle = this.videoTitle
+
+      return window.location.href
+        .replace(this.$route.fullPath, '')
+        .concat('/?directLink=')
+        .concat(encodeURIComponent(videoTitle))
+    }
   },
 
   watch: {

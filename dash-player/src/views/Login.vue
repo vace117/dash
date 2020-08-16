@@ -54,9 +54,12 @@ export default {
       }
 
       this.loginInProggressInd = true
-      this.$store.dispatch('login', error => {
-        this.loginInProggressInd = false
-        this.$store.commit('updateErrors', error)
+      this.$store.dispatch('login', {
+        errorCallback : (error) => {
+          this.loginInProggressInd = false
+          this.$store.commit('updateErrors', error)
+        },
+        directLink: this.$route.query.directLink
       })
     }
   },

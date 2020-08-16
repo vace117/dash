@@ -74,6 +74,8 @@
 import { mapFields } from 'vuex-map-fields'
 import { getServerQuery } from '@/utils/axios-utils'
 
+import GoogleBucket from '@/google-bucket/googleBucket'
+
 export default {
   components: {
     Tree: () => import('vuejs-tree')
@@ -112,7 +114,7 @@ export default {
       }
 
       getServerQuery({
-        endpoint: 'https://www.googleapis.com/storage/v1/b/dash-video-storage/o',
+        endpoint: GoogleBucket.json_endpoint,
         parameters: queryParams
       })
         .then(response => {
@@ -203,10 +205,8 @@ export default {
           else {
             // This is a playable leaf file that we can feed to the DASH player
             //
-            this.$store.commit(
-              'updateSelectedVideoUrl',
-              'https://storage.googleapis.com/dash-video-storage/' + dirListingOrVideoUrl
-            )
+            console.log(`Selected ${dirListingOrVideoUrl}`)
+            this.$store.commit('updateSelectedVideoUrl', dirListingOrVideoUrl)
 
             this.$refs.readyToWatchModal.show()
           }
