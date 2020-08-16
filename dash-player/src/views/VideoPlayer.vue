@@ -121,6 +121,7 @@ export default {
         this.pubSubChannel = channel
         this.pubSubChannel.bind('client-video-command',  this.processReceivedCommand)
         this.pubSubChannel.bind('client-user-keepalive', this.processUserKeepAlive)
+        this.pubSubChannel.bind('force-logout',          this.forceLogout)
         this.pubSubInitCompletedInd = true
 
         // Register Live User cache callbacks and begin sending out KeepAlive messages
@@ -145,6 +146,7 @@ export default {
     },
 
     goBackToLogin () {
+      this._tearDown()
       this.$router.push({ path: '/' })
     },
 
@@ -256,6 +258,11 @@ export default {
       }
 
       this.$refs.linkShareModal.hide()
+    },
+
+    forceLogout () {
+      console.log('Server forced a logout!')
+      this.goBackToLogin()
     }
 
   },
