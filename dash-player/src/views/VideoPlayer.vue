@@ -39,7 +39,7 @@
                 <b-container fluid>
                 <b-row align-v="center" class="text-center" style="height: 90%">
                   <b-col>
-                    <b-button @click="$bvModal.hide('linkShareModal')" size="funsize" variant="primary">DONE</b-button>
+                    <b-button @click="copyLinkToClipboard" size="funsize" variant="primary">COPY</b-button>
                   </b-col>
                 </b-row>
                 </b-container>
@@ -240,6 +240,22 @@ export default {
 
     openLinkShareDialog () {
       this.$refs.linkShareModal.show()
+    },
+
+    copyLinkToClipboard () {
+      const clipError = 'Unable to automatically copy link into your clipboard. Please copy it manually.'
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(this.directVideoLink).then(
+          () => {},
+          () => { this.$store.commit('updateErrors', clipError) }
+        )
+      }
+      else {
+        this.$store.commit('updateErrors', clipError)
+      }
+
+      this.$refs.linkShareModal.hide()
     }
 
   },
