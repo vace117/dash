@@ -121,6 +121,8 @@ const liveUserCache = new NodeCache({
   checkperiod: KEEP_ALIVE_PERIOD_SECONDS / 3
 })
 
+const messageIdCache = new NodeCache({ stdTTL: 10, checkperiod: 5 })
+
 export default {
   data () {
     return {
@@ -301,7 +303,11 @@ export default {
     },
 
     processWebRTCSignaling (message) {
-      if (message.toUser === this.$store.state.userName) {
+      if ((!message.message_id || !messageIdCache.has(message.message_id)) && message.toUser === this.$store.state.userName) {
+        if (message.message_id) {
+          messageIdCache.set(message.message_id, null)
+        }
+
         const remoteUserName = message.fromUser
 
         try {
@@ -333,6 +339,9 @@ export default {
         catch (e) {
           this.$store.commit('updateErrors', `WebRTC error: ${e}`)
         }
+      }
+      else {
+        console.warn(`Dropping duplicate message: ${JSON.stringify(message)}`)
       }
     },
 

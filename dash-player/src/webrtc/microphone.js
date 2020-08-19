@@ -1,3 +1,5 @@
+var uniqId = require('uniqid')
+
 const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName, disconnectCallback) {
   this.pubSubChannel = pubSubChannel
   this.localUserName = localUserName
@@ -50,6 +52,7 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
     if (event.candidate) {
       console.log(`WebRTC: Sending new ICE candidate to ${this.remoteUserName}: ${JSON.stringify(event.candidate)}`)
       this.pubSubChannel.trigger('client-webrtc-signaling', {
+        message_id: uniqId(),
         fromUser: this.localUserName,
         toUser: this.remoteUserName,
         iceCandidate: event.candidate
@@ -104,6 +107,7 @@ WebRTCPeerManager.prototype.acceptConnectionFromUser = function (offer) {
                 console.log(`WebRTC: Transmitting Answer to ${this.remoteUserName}...`)
 
                 this.pubSubChannel.trigger('client-webrtc-signaling', {
+                  message_id: uniqId(),
                   fromUser: this.localUserName,
                   toUser: this.remoteUserName,
                   answer: answer
@@ -193,6 +197,7 @@ WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
       console.log(`WebRTC: Transmitting offer to ${this.remoteUserName}...`)
 
       this.pubSubChannel.trigger('client-webrtc-signaling', {
+        message_id: uniqId(),
         fromUser: this.localUserName,
         toUser: this.remoteUserName,
         offer: offer
@@ -217,7 +222,8 @@ WebRTCPeerManager.prototype.applyMicrophoneState = function (micMutedInd) {
 }
 
 // This is no longer used, b/c we can get the same info at 'chrome://webrtc-internals/'
-// or 'about:webrtc' in Firefox
+// In Firefox you are supposed to use 'about:webrtc', but it does not work, so this
+// code might still be useful there.
 //
 WebRTCPeerManager.prototype.startStatsMonitor = function () {
   this.statsMonitor = setInterval(() => {
