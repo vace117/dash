@@ -174,7 +174,9 @@ WebRTCPeerManager.prototype.processSDPMessage = function (message) {
   else if (message.iceCandidate) {
     this.peerConnection.addIceCandidate(message.iceCandidate)
       .then(() => {
-        console.log(`WebRTC: ICE Candidate from ${message.fromUser} is added: ${JSON.stringify(message.iceCandidate)}`)
+        if (this.peerConnection.iceConnectionState !== 'connected') {
+          console.log(`WebRTC: ICE Candidate from ${message.fromUser} is added: ${JSON.stringify(message.iceCandidate)}`)
+        }
       })
       .catch(err => console.error(err))
   }
@@ -203,7 +205,7 @@ WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
 
 WebRTCPeerManager.prototype.disconnect = function () {
   this.peerConnection.close()
-  clearInterval(this.statsMonitor)
+  // clearInterval(this.statsMonitor)
 }
 
 WebRTCPeerManager.prototype.applyMicrophoneState = function (micMutedInd) {

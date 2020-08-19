@@ -240,7 +240,7 @@ export default {
     removeCrew () {
       Object
         .keys(this.crewRoster)
-        .filter(user => !liveUserCache.get(user))
+        .filter(user => !liveUserCache.has(user))
         .forEach(deadUser => this._cleanupAfterUser(deadUser))
     },
 
