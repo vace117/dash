@@ -136,7 +136,9 @@ export default {
   data () {
     return {
       pubSubInitCompletedInd: false,
+
       crewRoster: {},
+
       micMutedByUserInd: false,
       micMutedInd: false,
       videoPlayingInd: false,
@@ -150,8 +152,16 @@ export default {
     this.lastBroadcast = null
     this.audioPeers = {}
 
+    // Init video player
+    //
     this._initDashPlayer()
 
+    // Init intercom key listener
+    //
+    this._initIntercomKeys()
+
+    // Subscribe to PubSub channel
+    //
     createOrSubscribeToChannelForVideo({
       selectedVideoURL: this.$store.state.selectedVideoUrl,
       password:         this.$store.state.password
@@ -180,6 +190,8 @@ export default {
       })
       .catch(error => this.$store.commit('updateErrors', error))
 
+    // Log the user out automatically when session expires
+    //
     setTimeout(() => {
       this.goBackToLogin()
       this.$store.commit('updateErrors', `Your session has expired after ${SESSION_TIMEOUT_SECONDS} seconds.`)
@@ -229,9 +241,10 @@ export default {
       )
       this.dashPlayer.on('playbackPlaying', this.broadcastPlayerEvent)
       this.dashPlayer.on('playbackPaused',  this.broadcastPlayerEvent)
+    },
 
-      const videoElement = document.getElementById('videoPlayer')
-      videoElement.onkeydown = (e) => {
+    _initIntercomKeys () {
+      window.addEventListener('keydown', (e) => {
         if (this.videoPlayingInd) {
           if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
             console.log('Intercom mode is ON')
@@ -244,9 +257,9 @@ export default {
           }
         }
         return e
-      }
+      })
 
-      videoElement.onkeyup = (e) => {
+      window.addEventListener('keyup', (e) => {
         if (this.videoPlayingInd) {
           if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
             console.log('Intercom mode is OFF')
@@ -263,7 +276,7 @@ export default {
           }
         }
         return e
-      }
+      })
     },
 
     // Goes through the users currently held in the expiring cache and adds any users
