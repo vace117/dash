@@ -204,6 +204,7 @@ WebRTCPeerManager.prototype.createAndSendSDPOffer = function () {
 }
 
 WebRTCPeerManager.prototype.disconnect = function () {
+  this.localMicTrack.stop()
   this.peerConnection.close()
   // clearInterval(this.statsMonitor)
 }
