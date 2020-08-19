@@ -96,6 +96,8 @@ const liveUserCache = new NodeCache({
   checkperiod: KEEP_ALIVE_PERIOD_SECONDS / 3
 })
 
+const SESSION_TIMEOUT_SECONDS = 14400 // 4 hours
+
 export default {
   data () {
     return {
@@ -137,6 +139,11 @@ export default {
         )
       })
       .catch(error => this.$store.commit('updateErrors', error))
+
+    setTimeout(() => {
+      this.goBackToLogin()
+      this.$store.commit('updateErrors', `Your session has expired after ${SESSION_TIMEOUT_SECONDS} seconds.`)
+    }, SESSION_TIMEOUT_SECONDS * 1000)
   },
 
   methods: {
@@ -153,11 +160,17 @@ export default {
     _tearDown () {
       clearInterval(this.keepAliveTimer)
 
-      this.pubSubChannel.pusher.disconnect()
-      this.pubSubChannel = null
+      if (this.pubSubChannel) {
+        this.pubSubChannel.pusher.disconnect()
+        this.pubSubChannel = null
+      }
 
-      this.dashPlayer.reset()
-      this.dashPlayer = null
+      if (this.dashPlayer) {
+        this.dashPlayer.reset()
+        this.dashPlayer = null
+      }
+
+      this.$store.commit('clearErrors')
     },
 
     _initDashPlayer () {

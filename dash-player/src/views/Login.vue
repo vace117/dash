@@ -65,7 +65,6 @@ export default {
   },
 
   mounted () {
-    this.$store.commit('clearErrors')
     this.$store.commit('clearPassword')
   },
 
