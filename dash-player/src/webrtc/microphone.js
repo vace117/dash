@@ -37,6 +37,7 @@ const WebRTCPeerManager = function (pubSubChannel, localUserName, remoteUserName
 
   this.peerConnection.addEventListener('connectionstatechange', event => {
     console.log(`Peer connection state: ${this.peerConnection.connectionState}`)
+
     if (this.peerConnection.connectionState === 'disconnected') {
       console.log(`WebRTC: Cleaning up WebRTC channel to ${this.remoteUserName}, b/c they disconnected...`)
 
