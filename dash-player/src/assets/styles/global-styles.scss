@@ -5,6 +5,7 @@ $body-color: #ffae00;
 $other-color: #3CAEA3;
 $star-trek-color-1: #9698FD;
 $star-trek-color-2: #CB6362;
+$star-trek-color-3: #CB99CE;
 $enable-shadows: true;
 $primary: #28a745;
 $secondary: #ffc107;
@@ -115,4 +116,7 @@ div.row_data:hover {
 }
 .star-trek-color-2 {
   color: $star-trek-color-2
+}
+.star-trek-color-3 {
+  color: $star-trek-color-3
 }

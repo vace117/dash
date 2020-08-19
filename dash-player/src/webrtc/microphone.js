@@ -214,7 +214,7 @@ WebRTCPeerManager.prototype.disconnect = function () {
   // clearInterval(this.statsMonitor)
 }
 
-WebRTCPeerManager.prototype.applyMicrophoneState = function (micMutedInd) {
+WebRTCPeerManager.prototype.applyMicrophoneMuteState = function (micMutedInd) {
   if (this.localMicTrack) {
     this.localMicTrack.enabled = !micMutedInd
     console.log(`Microphone muted: ${!this.localMicTrack.enabled} on ${this.remoteUserName} connection.`)

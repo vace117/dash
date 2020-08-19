@@ -79,9 +79,17 @@
             </b-row>
             <b-row v-if="audioPeersPresent">
               <b-col class="ml-2 mb-3 smallestScreenText">
-                <b-form-checkbox v-model="micMutedInd" size="lg" button :button-variant="micMutedInd ? 'danger' : 'primary'">
-                  {{micMutedInd ? 'Unmute' : 'Mute'}} Microphone
+                <b-form-checkbox v-model="micMutedByUserInd" size="lg" button
+                  :button-variant="micMutedInd ? 'danger' : 'primary'"
+                  :disabled="videoPlayingInd">
+                    {{micMutedInd ? 'Unmute' : 'Mute'}} Microphone
                 </b-form-checkbox>
+                <div v-show="videoPlayingInd && !intercomModeInd" class="pt-5 star-trek-color-3">
+                  Hold SHIFT to talk without stopping the video...
+                </div>
+                <div v-show="videoPlayingInd && intercomModeInd" class="pt-5 star-trek-color-3">
+                  Release SHIFT when done talking...
+                </div>
               </b-col>
             </b-row>
           </b-col>
@@ -129,7 +137,10 @@ export default {
     return {
       pubSubInitCompletedInd: false,
       crewRoster: {},
-      micMutedInd: false
+      micMutedByUserInd: false,
+      micMutedInd: false,
+      videoPlayingInd: false,
+      intercomModeInd: false
     }
   },
 
@@ -221,14 +232,36 @@ export default {
 
       const videoElement = document.getElementById('videoPlayer')
       videoElement.onkeydown = (e) => {
-        console.log(`DOWN: ${e.code}`)
-        this.dashPlayer.setVolume(0.1)
+        if (this.videoPlayingInd) {
+          if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+            console.log('Intercom mode is ON')
+
+            this.intercomModeInd = true
+            this.savedVideoVolumeLevel = this.dashPlayer.getVolume()
+            this.dashPlayer.setVolume(0.1)
+
+            this.micMutedInd = false
+          }
+        }
         return e
       }
 
       videoElement.onkeyup = (e) => {
-        console.log(`UP: ${e.code}`)
-        this.dashPlayer.setVolume(1.0)
+        if (this.videoPlayingInd) {
+          if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+            console.log('Intercom mode is OFF')
+
+            this.micMutedInd = true
+            this.intercomModeInd = false
+
+            if (this.savedVideoVolumeLevel) {
+              this.dashPlayer.setVolume(this.savedVideoVolumeLevel)
+            }
+            else {
+              this.dashPlayer.setVolume(1.0)
+            }
+          }
+        }
         return e
       }
     },
@@ -372,11 +405,15 @@ export default {
           this.lastCommandReceived = command
 
           if (command.type === 'playbackPlaying') {
+            this.micMutedInd = true
             this.dashPlayer.seek(command.playingTime)
             this.dashPlayer.play()
+            this.videoPlayingInd = true
           }
           else if (command.type === 'playbackPaused') {
             this.dashPlayer.pause()
+            this.videoPlayingInd = false
+            this.micMutedInd = this.micMutedByUserInd
           }
           else {
             console.error('Don\'t know how to process this command!')
@@ -409,7 +446,16 @@ export default {
         // console.log('Broadcasting Video Event: ' + JSON.stringify(payload))
         this.lastBroadcast = payload
         this.pubSubChannel.trigger('client-video-command', payload)
-        // Generate unique token and include in message for de-duplication
+        // TODO: Generate unique token and include in message for de-duplication
+
+        if (payload.type === 'playbackPlaying') {
+          this.videoPlayingInd = true
+          this.micMutedInd = true
+        }
+        else if (payload.type === 'playbackPaused') {
+          this.videoPlayingInd = false
+          this.micMutedInd = this.micMutedByUserInd
+        }
       }
       else {
         // console.log(`Broadcast of ${JSON.stringify(payload)} was blocked.`)
@@ -439,6 +485,12 @@ export default {
     forceLogout () {
       console.log('Server forced a logout!')
       this.goBackToLogin()
+    },
+
+    applyMicrophoneMuteState (mutedInd) {
+      Object
+        .values(this.audioPeers)
+        .forEach(pc => pc.applyMicrophoneMuteState(mutedInd))
     }
 
   },
@@ -472,8 +524,12 @@ export default {
   },
 
   watch: {
+    micMutedByUserInd (newMuteState) {
+      this.micMutedInd = newMuteState
+    },
+
     micMutedInd (newMuteState) {
-      Object.values(this.audioPeers).forEach(pc => pc.applyMicrophoneState(newMuteState))
+      this.applyMicrophoneMuteState(newMuteState)
     }
   }
 
