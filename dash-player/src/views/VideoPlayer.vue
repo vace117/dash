@@ -120,8 +120,9 @@ const liveUserCache = new NodeCache({
   stdTTL:      KEEP_ALIVE_PERIOD_SECONDS + 5,
   checkperiod: KEEP_ALIVE_PERIOD_SECONDS / 3
 })
-
 const messageIdCache = new NodeCache({ stdTTL: 10, checkperiod: 5 })
+
+const SESSION_TIMEOUT_SECONDS = 14400 // 4 hours
 
 export default {
   data () {
@@ -167,6 +168,11 @@ export default {
         )
       })
       .catch(error => this.$store.commit('updateErrors', error))
+
+    setTimeout(() => {
+      this.goBackToLogin()
+      this.$store.commit('updateErrors', `Your session has expired after ${SESSION_TIMEOUT_SECONDS} seconds.`)
+    }, SESSION_TIMEOUT_SECONDS * 1000)
   },
 
   methods: {
@@ -197,6 +203,8 @@ export default {
       // in WebRTC cleanup for each user as well
       //
       liveUserCache.flushAll()
+
+      this.$store.commit('clearErrors')
     },
 
     _initDashPlayer () {

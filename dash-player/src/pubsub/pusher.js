@@ -7,24 +7,29 @@ const crypto = require('crypto')
 
 export default function createOrSubscribeToChannelForVideo ({ selectedVideoURL, password }) {
   return new Promise((resolve, reject) => {
-    const pusherClient = _createClient(password)
+    if (selectedVideoURL) {
+      const pusherClient = _createClient(password)
 
-    const channelName = _createChannelName(selectedVideoURL)
-    console.log(`Attempting to subscribe to ${channelName} channel...`)
-    const channel = pusherClient.subscribe(channelName)
+      const channelName = _createChannelName(selectedVideoURL)
+      console.log(`Attempting to subscribe to ${channelName} channel...`)
+      const channel = pusherClient.subscribe(channelName)
 
-    channel
-      .bind('pusher:subscription_succeeded', () => {
-        console.log('Channel subscription successful!')
+      channel
+        .bind('pusher:subscription_succeeded', () => {
+          console.log('Channel subscription successful!')
 
-        resolve(channel)
-      })
-      .bind('pusher:subscription_error', status => {
-        const errorText = `Subscription to ${channelName} failed with error code: ${status}`
-        console.error(errorText)
+          resolve(channel)
+        })
+        .bind('pusher:subscription_error', status => {
+          const errorText = `Subscription to ${channelName} failed with error code: ${status}`
+          console.error(errorText)
 
-        reject(new Error(errorText))
-      })
+          reject(new Error(errorText))
+        })
+    }
+    else {
+      reject(new Error('selectedVideoURL was empty!'))
+    }
   })
 }
 
