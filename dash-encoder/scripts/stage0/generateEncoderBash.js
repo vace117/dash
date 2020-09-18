@@ -45,11 +45,23 @@ const ACTION_PLAN = {
 
 (async function () {
 
+  // Analyze the video
+  //
   const videoData = await parseVideoDescription(VIDEO_FILE)
-
   await processContainer(videoData)
   videoData.streams.forEach(s => processStream(s))
 
+  // Apply overrides from command line
+  //
+  if ( ARGV.forceAudio ) {
+    ACTION_PLAN.audio.reencode = true
+  }
+  if ( ARGV.forceVideo ) {
+    ACTION_PLAN.video.reencode = true
+  }
+  
+  // Generate the BASH script
+  //
   console.log("== Action Plan ==")
   console.log(ACTION_PLAN)
 
@@ -289,6 +301,16 @@ function readInputFile () {
     .option('output-dir', {
       alias: 'o',
       default: '.'
+    })
+    .option('force-audio', {
+      alias: 'fa',
+      type: 'boolean',
+      default: false
+    })
+    .option('force-video', {
+      alias: 'fv',
+      type: 'boolean',
+      default: false
     })
     .argv
 }
