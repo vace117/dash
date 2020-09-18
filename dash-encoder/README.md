@@ -19,6 +19,8 @@ $ ./input_video.sh
 This generates the BASH file with all the commands for you, and then you run it.
 
 ## Directory of Video Files
+Before you encode multiple files, makes sure to encode one file first and **verify the result!** For example, you could check that both video and audio directories contain many small fragments, instead of just one big fragment, which would really slow down video playback.
+
 ```text
 $ cd <input_dir>
 $ ls | parallel -q generateEncoderBash.sh [-o output_dir] :::
