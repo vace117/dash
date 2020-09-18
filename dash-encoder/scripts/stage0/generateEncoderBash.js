@@ -303,12 +303,12 @@ function readInputFile () {
       default: '.'
     })
     .option('force-audio', {
-      alias: 'fa',
+      alias: 'a',
       type: 'boolean',
       default: false
     })
     .option('force-video', {
-      alias: 'fv',
+      alias: 'v',
       type: 'boolean',
       default: false
     })

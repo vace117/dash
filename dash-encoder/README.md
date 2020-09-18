@@ -13,7 +13,7 @@ All of the commands below should be executed from the Docker image.
 # Creating a DASH Presentation
 ## Single Video File
 ```text
-$ generateEncoderBash.sh [-o output_dir] <input_video.mp4>
+$ generateEncoderBash.sh [-o output_dir] [-a] [-v] <input_video.mp4>
 $ ./input_video.sh
 ```
 This generates the BASH file with all the commands for you, and then you run it.
