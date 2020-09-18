@@ -23,7 +23,7 @@ Before you encode multiple files, makes sure to encode one file first and **veri
 
 ```text
 $ cd <input_dir>
-$ ls | parallel -q generateEncoderBash.sh [-o output_dir] :::
+$ ls | parallel -q generateEncoderBash.sh [-o output_dir] [-a] [-v] :::
 $ ls *.sh | parallel --progress bash :::
 ```
 This generates BASH files for each video and then you run them all using a worker pool with number of threads equal to the number of cores you have on your CPU.
