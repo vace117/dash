@@ -37,9 +37,12 @@ $ uploadDashPresentations.sh <local_dir> [<target_path_in_google_bucket>]
 If you run this command w/o the 2nd parameter, it will list the existing videos in the Google bucket to help you figure out what `<target_path_in_google_bucket>` should be.
 
 ## Example Upload
+This will upload the contents of the current directory into the bucket path, creating the directory if it doesn't exist, or adding local content to an existing directory in the bucket.
 ```text
-$ uploadDashPresentations.sh '03 True Strength Builder 1' '/Yoga/Dylan Werner/03 True Strength Builder 1'
+$ cd '03 True Strength Builder 1'
+$ uploadDashPresentations.sh . '/Yoga/Dylan Werner/03 True Strength Builder 1'
 ```
+
 
 
 # Supporting info
