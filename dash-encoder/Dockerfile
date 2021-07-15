@@ -157,6 +157,18 @@ WORKDIR ${CUSTOM_SCRIPTS}/stage0
 RUN npm install
 ENV PATH=${CUSTOM_SCRIPTS}/stage0:${PATH}
 
+########################################
+# Upgrade python to 3.7, b/c BentoBox needs that
+########################################
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    python3.7 \
+    && rm /usr/bin/python3 \
+    && ln -s /usr/bin/python3.7 /usr/bin/python3 \
+    && python3 -V
+
+########################################
+# Setup user and dir
+########################################
 USER ${UID}:${GID}
 WORKDIR /mnt/video
 CMD ["bash"]
