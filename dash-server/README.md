@@ -1,4 +1,16 @@
-There are 2 ways to server the files so far:
+There are 3 ways to serve the files so far:
+
+# Local Directory HTTP Server
+```text
+npm install --global http-server
+cd [video directory with stream.mpd]
+http-server --cors
+```
+
+You can now open the reference DASH player (https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/index.html) and play the video in your browser by loading the local URL: 
+```text
+http://127.0.0.1:8080/stream.mpd
+```
 
 # Apache Docker image
 ## Build 
@@ -11,7 +23,7 @@ docker build -t vace117/dash-server .
 ./runServer.sh
 ```
 
-# Google Bucket
+# Google Bucket (Production)
 ## Login
 ```text
 gcloud auth login
