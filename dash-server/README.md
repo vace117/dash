@@ -12,6 +12,11 @@ docker build -t vace117/dash-server .
 ```
 
 # Google Bucket
+## Login
+```text
+gcloud auth login
+```
+
 ## Make the Bucket
 ```text
 gsutil mb gs://dash-video-storage
@@ -40,8 +45,10 @@ gsutil -m setmeta -h "Content-Type:application/dash+xml" 'gs://dash-video-storag
 ```
 
 ## Data Upload Example
+Make sure you log in before running this command! See above.
+
 ```text
-gsutil -m cp -r dylan/ gs://dash-video-storage/
+gsutil -m cp -r Lauren Eckstrom/ gs://dash-video-storage/Yoga/
 ```
 
 ## Data List Example
