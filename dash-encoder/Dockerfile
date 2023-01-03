@@ -122,7 +122,7 @@ ENV PATH=${FFMPEG_DIR}/bin:${PATH}
 # Install NodeJS
 ########################################
 USER root
-RUN wget -q -O- https://deb.nodesource.com/setup_12.x | bash - \
+RUN wget -q -O- https://deb.nodesource.com/setup_14.x | bash - \
  && apt-get install -y nodejs
 USER ${UID}:${GID}
 
