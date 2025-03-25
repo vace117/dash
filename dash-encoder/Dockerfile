@@ -82,7 +82,7 @@ ARG FFMPEG_BUILD_DIR="$HOME/ffmpeg_build/BUILD_DIR"
 ARG FFMPEG_DIR="$HOME/ffmpeg"
 ENV PKG_CONFIG_PATH="${FFMPEG_BUILD_DIR}/lib/pkgconfig"
 
-RUN git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg_build \
+RUN git clone --branch n5.1.6 --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg_build \
  && mkdir -p ${PKG_CONFIG_PATH} \
  && cd "${FFMPEG_BUILD_DIR}/.." \
  && ./configure \
@@ -133,17 +133,17 @@ USER root
 RUN apt-get install -y parallel
 USER ${UID}:${GID}
 
-########################################
-# Install GCloud utils
-########################################
-USER root
-RUN apt-get update && apt-get install -y curl \
- && curl https://sdk.cloud.google.com | bash \
- && chown -R "${USER}:${USER}" "/home/${USER}/.config"
-
-USER ${UID}:${GID}
-RUN echo ". /home/${USER}/google-cloud-sdk/completion.bash.inc" >> "/home/${USER}/.bashrc"
-RUN echo ". /home/${USER}/google-cloud-sdk/path.bash.inc"       >> "/home/${USER}/.bashrc"
+# ########################################
+# # Install GCloud utils
+# ########################################
+# USER root
+# RUN apt-get update && apt-get install -y curl \
+#  && curl https://sdk.cloud.google.com | bash \
+#  && chown -R "${USER}:${USER}" "/home/${USER}/.config"
+#
+# USER ${UID}:${GID}
+# RUN echo ". /home/${USER}/google-cloud-sdk/completion.bash.inc" >> "/home/${USER}/.bashrc"
+# RUN echo ". /home/${USER}/google-cloud-sdk/path.bash.inc"       >> "/home/${USER}/.bashrc"
 
 ########################################
 # Install Custom Helper Scripts
